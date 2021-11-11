@@ -42,6 +42,11 @@ public class ColumnInfo {
 
     }
 
+    public ColumnInfo(String name, String type) {
+        this.name = name;
+        this.type = type;
+    }
+
     public ColumnInfo(String name, String type, boolean pk, FKInfo fkInfo) {
         this.name = name;
         this.type = type;

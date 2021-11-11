@@ -9,28 +9,29 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.javafx.IkonResolver;
 
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.Time;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class MainController implements Initializable {
     private Connection conn;
+    private AnchorPane sbContainer;
+
+    @FXML
+    private SplitPane spContainer;
 
     @FXML
     private VBox sidebar;
@@ -39,22 +40,51 @@ public class MainController implements Initializable {
     private VBox sidebarDetail;
 
     @FXML
-    private void onLoadTest(ActionEvent event) {
+    private HBox hbStatusbar;
+
+    @FXML
+    private void onActionLoadDB(ActionEvent event) {
+        Button btnLoadDB = (Button) event.getSource();
+
         ListView listView = (ListView) sidebar.getChildren().get(1);
         listView.getItems().clear();
 
-        ListView listViewDetail = (ListView) sidebarDetail.getChildren().get(1);
+        Label status = (Label) ((HBox) sidebar.getChildren().get(0)).getChildren().get(0);
+        Label connInfo = (Label) hbStatusbar.getChildren().get(1);
+        status.setText("Objects(0)");
+
+        ListView listViewDetail = (ListView) sidebarDetail.getChildren().get(2);
         listViewDetail.getItems().clear();
         hideNode(sidebarDetail, true);
 
+        //long startTime = System.currentTimeMillis();
+        //System.out.println("Start:"+startTime);
 
         AsyncSidebar asyncSidebar = new AsyncSidebar(conn, sidebar);
         asyncSidebar.setOnRunning(running -> {
+            btnLoadDB.setDisable(true);
 
+            ProgressIndicator indicator = new ProgressIndicator();
+            indicator.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+            indicator.setPrefWidth(15);
+            indicator.setPrefHeight(15);
+
+            connInfo.setGraphic(indicator);
         });
 
         asyncSidebar.setOnSucceeded(succeded -> {
+            btnLoadDB.setDisable(false);
+            connInfo.setGraphic(null);
 
+            /*
+            long stopTime = System.currentTimeMillis();
+            System.out.println("Stop:"+stopTime);
+            long elapsedTime = stopTime - startTime;
+            long minutes = TimeUnit.MILLISECONDS.toMinutes(elapsedTime);
+            System.out.println("Seconds:"+ TimeUnit.MILLISECONDS.toSeconds(elapsedTime));
+            System.out.println("Minutes:"+minutes);
+
+             */
         });
 
 
@@ -70,10 +100,10 @@ public class MainController implements Initializable {
         int index = listView.getSelectionModel().getSelectedIndex();
         if (index >= 0 && event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
             SidebarObject sidebarObject = (SidebarObject) listView.getItems().get(index);
-            ListView listViewDetail = (ListView) sidebarDetail.getChildren().get(1);
+            ListView listViewDetail = (ListView) sidebarDetail.getChildren().get(2);
             listViewDetail.getItems().clear();
 
-            Label tableName = (Label) (sidebarDetail.getChildren().get(0));
+            Label tableName = (Label) (sidebarDetail.getChildren().get(1));
             tableName.setText(sidebarObject.getName());
 
             sidebarObject.getColumns().forEach(columnInfo -> {
@@ -86,7 +116,7 @@ public class MainController implements Initializable {
                 }
             });
 
-            Label status = (Label) ((HBox) sidebarDetail.getChildren().get(2)).getChildren().get(0);
+            Label status = (Label) ((HBox) sidebarDetail.getChildren().get(0)).getChildren().get(0);
             status.setText("Columns("+listViewDetail.getItems().size()+")");
 
             hideNode(sidebarDetail, false);
@@ -98,12 +128,25 @@ public class MainController implements Initializable {
         hideNode(sidebarDetail, true);
     }
 
+    @FXML
+    private void onActionHideSidebar(ActionEvent event) {
+        if (spContainer.getItems().size() == 2) {
+            sbContainer = (AnchorPane) spContainer.getItems().get(0);
+            spContainer.getItems().remove(0);
+        }else {
+            spContainer.getItems().add(0, sbContainer);
+        }
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         hideNode(sidebarDetail, true);
 
+
         conn = Conexion.connect("sis_inventario", "@dmin21", "@dmin21");
+        Label connInfo = (Label) hbStatusbar.getChildren().get(1);
+        connInfo.setText("@dmin21@localhost:3306/sis_inventario");
+
 
         ListView listView = (ListView) sidebar.getChildren().get(1);
         listView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {

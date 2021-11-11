@@ -1,6 +1,7 @@
 package com.github.ffrancoc.foca.lib;
 
 import com.github.ffrancoc.foca.model.ColumnInfo;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -39,6 +40,7 @@ public class SidebarObjectDetail extends VBox {
         if (!columnInfo.getFk().getColumnName().isEmpty()){
             Label fkname = new Label(columnInfo.getFk().getTableParent()+"("+columnInfo.getFk().getColumnName()+")");
             fkname.setFont(Font.font("Verdara", FontWeight.NORMAL, FontPosture.ITALIC, 11));
+
             getChildren().add(fkname);
         }
 

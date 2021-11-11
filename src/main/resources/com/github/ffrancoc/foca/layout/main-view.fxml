@@ -5,69 +5,128 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 <?import org.kordamp.ikonli.javafx.FontIcon?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #fff;;" stylesheets="@../css/light.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.ffrancoc.foca.MainController">
    <children>
-      <SplitPane dividerPositions="0.34461152882205515" prefHeight="600.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <items>
-            <AnchorPane maxWidth="300.0" minWidth="200.0" prefWidth="230.0">
-               <children>
-                  <VBox fx:id="sidebar" prefHeight="598.0" prefWidth="275.0" spacing="5.0" styleClass="sidebar" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <VBox prefHeight="600.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <SplitPane fx:id="spContainer" dividerPositions="0.34461152882205515" prefHeight="600.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
+               <items>
+                  <AnchorPane fx:id="sbContainer" maxWidth="300.0" minWidth="200.0" prefWidth="230.0">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#onLoadTest" text="Load Data" />
-                        <ListView onMouseClicked="#onMouseClickedSidebarList" styleClass="sidebar-list" VBox.vgrow="ALWAYS" />
-                        <Label prefHeight="16.0" prefWidth="265.0" text="Objects (0)">
-                           <font>
-                              <Font name="System Bold" size="13.0" />
-                           </font>
-                        </Label>
-                     </children>
-                     <padding>
-                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                     </padding>
-                  </VBox>
-               </children>
-            </AnchorPane>
-            <AnchorPane prefHeight="200.0" prefWidth="200.0">
-               <children>
-                  <HBox layoutX="27.0" layoutY="199.0" prefHeight="598.0" prefWidth="522.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                     <children>
-                        <VBox fx:id="sidebarDetail" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" spacing="5.0" styleClass="sidebar">
+                        <VBox fx:id="sidebar" prefHeight="598.0" prefWidth="275.0" spacing="5.0" styleClass="sidebar" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <Label prefHeight="16.0" prefWidth="215.0" text="TableName" wrapText="true">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </Label>
-                              <ListView onMouseClicked="#onMouseClickedSidebarList" styleClass="sidebar-list" VBox.vgrow="ALWAYS" />
-                              <HBox prefHeight="16.0" prefWidth="96.0">
+                              <HBox>
                                  <children>
-                                    <Label prefHeight="29.0" prefWidth="152.0" text="Columns (0)">
+                                    <Label prefHeight="24.0" prefWidth="130.0" text="Objects(0)">
                                        <font>
-                                          <Font name="System Bold" size="13.0" />
+                                          <Font name="System Bold" size="11.0" />
                                        </font>
                                     </Label>
-                                    <Button mnemonicParsing="false" onAction="#onActionCloseSidebarDetail">
+                                    <Pane HBox.hgrow="ALWAYS" />
+                                    <Button mnemonicParsing="false" onAction="#onActionLoadDB" styleClass="flat-button">
                                        <graphic>
-                                          <FontIcon iconLiteral="bi-arrow-left" iconSize="20" />
+                                          <FontIcon iconLiteral="bi-arrow-repeat" iconSize="16" />
                                        </graphic>
                                     </Button>
                                  </children>
                               </HBox>
+                              <ListView onMouseClicked="#onMouseClickedSidebarList" styleClass="sidebar-list" VBox.vgrow="ALWAYS" />
                            </children>
                            <padding>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                            </padding>
                         </VBox>
                      </children>
-                  </HBox>
-               </children></AnchorPane>
-         </items>
-      </SplitPane>
+                  </AnchorPane>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <HBox layoutX="27.0" layoutY="199.0" prefHeight="598.0" prefWidth="522.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <VBox fx:id="sidebarDetail" maxWidth="200.0" minWidth="200.0" prefWidth="200.0" spacing="5.0" styleClass="sidebar">
+                                 <children>
+                                    <HBox style="-fx-background-color: #dddad6;;">
+                                       <children>
+                                          <Label prefHeight="29.0" prefWidth="174.0" text="Columns(0)">
+                                             <font>
+                                                <Font name="System Bold" size="11.0" />
+                                             </font>
+                                             <padding>
+                                                <Insets left="5.0" />
+                                             </padding>
+                                          </Label>
+                                          <Button mnemonicParsing="false" onAction="#onActionCloseSidebarDetail" styleClass="flat-button">
+                                             <graphic>
+                                                <FontIcon iconLiteral="bi-x" iconSize="16" />
+                                             </graphic>
+                                          </Button>
+                                       </children>
+                                    </HBox>
+                                    <Label prefHeight="16.0" prefWidth="215.0" text="TableName" wrapText="true">
+                                       <font>
+                                          <Font name="System Bold" size="12.0" />
+                                       </font>
+                                    </Label>
+                                    <ListView onMouseClicked="#onMouseClickedSidebarList" styleClass="sidebar-list" VBox.vgrow="ALWAYS" />
+                                 </children>
+                              </VBox>
+                              <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                 <children>
+                                    <TabPane prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                                      <tabs>
+                                        <Tab text="Untitled Tab 1">
+                                          <content>
+                                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                   <children>
+                                                      <TextArea layoutX="108.0" layoutY="14.0" prefHeight="169.0" prefWidth="322.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                   </children>
+                                                </AnchorPane>
+                                          </content>
+                                        </Tab>
+                                      </tabs>
+                                    </TabPane>
+                                    <TabPane minHeight="250.0" prefHeight="300.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE">
+                                      <tabs>
+                                        <Tab text="Errors">
+                                          <content>
+                                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                          </content>
+                                        </Tab>
+                                        <Tab text="Salidas">
+                                          <content>
+                                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+                                          </content>
+                                        </Tab>
+                                      </tabs>
+                                    </TabPane>
+                                 </children>
+                              </VBox>
+                           </children>
+                        </HBox>
+                     </children>
+                  </AnchorPane>
+               </items>
+            </SplitPane>
+            <HBox fx:id="hbStatusbar">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#onActionHideSidebar" styleClass="flat-button">
+                     <graphic>
+                        <FontIcon iconLiteral="bi-layout-sidebar-inset" iconSize="16" />
+                     </graphic>
+                  </Button>
+                  <Label prefHeight="23.0" prefWidth="433.0" text="hostname" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

@@ -17,6 +17,15 @@
     -fx-background-color: transparent;
 }
 
+
+.flat-button {
+    -fx-background-color: transparent;
+}
+
+.flat-button:hover {
+    -fx-background-color: #dddad6;
+}
+
 .sidebar,
 .sidebar-list {
     -fx-background-color: #f2f2f2;

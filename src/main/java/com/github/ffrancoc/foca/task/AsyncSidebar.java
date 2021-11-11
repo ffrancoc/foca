@@ -46,7 +46,7 @@ public class AsyncSidebar extends Task<Void> {
             ListView listView = (ListView) sidebar.getChildren().get(1);
             listView.getItems().add(row);
 
-            Label status = (Label) sidebar.getChildren().get(2);
+            Label status = (Label) ((HBox) sidebar.getChildren().get(0)).getChildren().get(0);
             status.setText("Objects("+listView.getItems().size()+")");
         });
     }

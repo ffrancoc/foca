@@ -3,15 +3,18 @@ package com.github.ffrancoc.foca.lib;
 import com.github.ffrancoc.foca.model.ColumnInfo;
 import com.github.ffrancoc.foca.model.FKInfo;
 import com.github.ffrancoc.foca.model.TableInfo;
+import javafx.concurrent.Task;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Conexion {
     // JDBC driver name and database URL
-    static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
-    static final String DB_URL = "jdbc:mariadb://localhost:3306/";
+    private static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
+    private static final String DB_URL = "jdbc:mariadb://localhost:3306/";
 
     public static Connection connect(String dbName, String user, String pass) {
         Connection conn = null;
@@ -22,6 +25,8 @@ public class Conexion {
             // Open a connection
             System.out.println("Connecting to a selected database...");
             conn = DriverManager.getConnection(DB_URL+dbName, user, pass);
+            DatabaseMetaData metaData = conn.getMetaData();
+            System.out.println(metaData.getURL());
             System.out.println("Connected database successfully...");
         } catch (ClassNotFoundException | SQLException e) {
             System.err.println("Error to connect to database, "+e.getMessage());
@@ -77,7 +82,8 @@ public class Conexion {
             while (rs.next()) {
                 boolean pk = rs.getString("COLUMN_NAME").equals(pkColumn(conn, table));
                 FKInfo fkInfo = fkColumn(conn, table, rs.getString("COLUMN_NAME"));
-                columns.add(new ColumnInfo(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME")+"("+rs.getInt("COLUMN_SIZE")+")", pk, fkInfo));
+                ColumnInfo columnInfo = new ColumnInfo(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME")+"("+rs.getInt("COLUMN_SIZE")+")", pk, fkInfo);
+                columns.add(columnInfo);
                 //columnInfo.setName(rs.getString("COLUMN_NAME"));
                 //columnInfo.setType(rs.getString("TYPE_NAME")+"("+rs.getInt("COLUMN_SIZE")+")");
                 //String name = rs.getString("COLUMN_NAME");
