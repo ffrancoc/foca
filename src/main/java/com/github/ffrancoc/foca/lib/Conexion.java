@@ -1,5 +1,6 @@
 package com.github.ffrancoc.foca.lib;
 
+import com.github.ffrancoc.foca.model.ColumnInfo;
 import com.github.ffrancoc.foca.model.TableInfo;
 
 import java.sql.*;
@@ -35,7 +36,8 @@ public class Conexion {
             DatabaseMetaData md = conn.getMetaData();
             ResultSet rs = md.getTables(null, null, "%", new String[]{"TABLE"});
             while (rs.next()) {
-                tables.add(new TableInfo(rs.getString("TABLE_NAME"), countData(conn, rs.getString("TABLE_NAME"))));
+                ArrayList<ColumnInfo> columns = Conexion.columnData(conn, rs.getString("TABLE_NAME"));
+                tables.add(new TableInfo(rs.getString("TABLE_NAME"), countData(conn, rs.getString("TABLE_NAME")), columns));
                 //tables.add(rs.getString("TABLE_NAME"));
                 //System.out.println(rs.getString("TABLE_NAME")+"("+countData(conn, rs.getString("TABLE_NAME"))+")");
                 //System.out.println(rs.getString("TABLE_NAME"));
@@ -54,7 +56,8 @@ public class Conexion {
             DatabaseMetaData md = conn.getMetaData();
             ResultSet rs = md.getTables(null, null, "%", new String[]{"VIEW"});
             while (rs.next()) {
-                views.add(new TableInfo(rs.getString("TABLE_NAME"), countData(conn, rs.getString("TABLE_NAME"))));
+                ArrayList<ColumnInfo> columns = Conexion.columnData(conn, rs.getString("TABLE_NAME"));
+                views.add(new TableInfo(rs.getString("TABLE_NAME"), countData(conn, rs.getString("TABLE_NAME")), columns));
 //                System.out.println(rs.getString("TABLE_NAME")+"("+countData(conn, rs.getString("TABLE_NAME"))+")");
                 //System.out.println(rs.getString("TABLE_NAME"));
             }
@@ -64,6 +67,75 @@ public class Conexion {
 
         return views;
     }
+
+    public static ArrayList<ColumnInfo> columnData(Connection conn, String table) {
+        ArrayList<ColumnInfo> columns = new ArrayList<>();
+        try {
+            DatabaseMetaData md = conn.getMetaData();
+            ResultSet rs = md.getColumns(null, null, table, null);
+            while (rs.next()) {
+                boolean pk = rs.getString("COLUMN_NAME").equals(pkColumn(conn, table));
+                columns.add(new ColumnInfo(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME")+"("+rs.getInt("COLUMN_SIZE")+")", pk));
+                fkColumn(conn, table, rs.getString("COLUMN_NAME"));
+                //columnInfo.setName(rs.getString("COLUMN_NAME"));
+                //columnInfo.setType(rs.getString("TYPE_NAME")+"("+rs.getInt("COLUMN_SIZE")+")");
+                //String name = rs.getString("COLUMN_NAME");
+                //String type = rs.getString("TYPE_NAME");
+                //int size = rs.getInt("COLUMN_SIZE");
+
+                //System.out.println("Column name: [" + name + "]; type: [" + type + "]; size: [" + size + "]");
+            }
+        }catch (SQLException e) {
+            System.err.println("Error to load column info, "+e.getMessage());
+        }
+
+        return columns;
+    }
+
+    private static String pkColumn(Connection conn, String tableName) {
+            String pkColumn = "";
+        try {
+            DatabaseMetaData md = conn.getMetaData();
+            ResultSet rs = md.getPrimaryKeys(null, null, tableName);
+            while (rs.next()) {
+                pkColumn = rs.getString("COLUMN_NAME");
+                //System.out.println("getPrimaryKeys(): columnName=" + columnName);
+
+            }
+        }catch (SQLException e) {
+            System.err.println("Error to load pk column info, "+e.getMessage());
+        }
+        return pkColumn;
+    }
+
+    private static void fkColumn(Connection conn, String tableName, String colName) {
+        //String pkColumn = "";
+        try {
+            DatabaseMetaData md = conn.getMetaData();
+            ResultSet rs = md.getImportedKeys(null, null, tableName);
+            while (rs.next()) {
+                String column_name = rs.getString("FKCOLUMN_NAME");
+                String pk_table = rs.getString("PKTABLE_NAME");
+                String pk_column = rs.getString("PKCOLUMN_NAME");
+                String constraint_name = rs.getString("PKCOLUMN_NAME");
+
+                if (column_name.equals(colName)){
+                    System.out.println("  "+column_name+" reference to "+ pk_table+"("+constraint_name+")");
+                    System.out.println(tableName+" "+colName);
+                    System.out.println("");
+                }
+
+
+                //System.out.println("  "+column_name+" reference to "+ pk_table+"("+constraint_name+")");
+                //System.out.println("getPrimaryKeys(): columnName=" + columnName);
+
+            }
+        }catch (SQLException e) {
+            System.err.println("Error to load fk column info, "+e.getMessage());
+        }
+        //return pkColumn;
+    }
+
 
     public static int countData(Connection conn,  String table) {
         int count = 0;
