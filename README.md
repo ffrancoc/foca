@@ -1,0 +1,2 @@
+# foca
+MariaDB simple GUI
