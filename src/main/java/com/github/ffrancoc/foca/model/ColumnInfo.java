@@ -4,6 +4,7 @@ public class ColumnInfo {
     private String name;
     private String type;
     private boolean pk;
+    private FKInfo fk;
 
     public String getName() {
         return name;
@@ -29,13 +30,22 @@ public class ColumnInfo {
         this.pk = pk;
     }
 
+    public FKInfo getFk() {
+        return fk;
+    }
+
+    public void setFk(FKInfo fk) {
+        this.fk = fk;
+    }
+
     public ColumnInfo(){
 
     }
 
-    public ColumnInfo(String name, String type, boolean pk) {
+    public ColumnInfo(String name, String type, boolean pk, FKInfo fkInfo) {
         this.name = name;
         this.type = type;
         this.pk = pk;
+        this.fk = fkInfo;
     }
 }

@@ -34,11 +34,18 @@ public class SidebarObjectDetail extends VBox {
         FontIcon fontIcon = new FontIcon(iconName);
         fontIcon.setIconColor(color);
         name.setGraphic(fontIcon);
+        getChildren().add(name);
+
+        if (!columnInfo.getFk().getColumnName().isEmpty()){
+            Label fkname = new Label(columnInfo.getFk().getTableParent()+"("+columnInfo.getFk().getColumnName()+")");
+            fkname.setFont(Font.font("Verdara", FontWeight.NORMAL, FontPosture.ITALIC, 11));
+            getChildren().add(fkname);
+        }
 
         Label type = new Label(columnInfo.getType());
         type.setFont(Font.font("Verdara", FontWeight.NORMAL, FontPosture.ITALIC, 11));
         type.getStyleClass().add("data-pill");
 
-        getChildren().addAll(name, type);
+        getChildren().add(type);
     }
 }

@@ -79,6 +79,8 @@ public class MainController implements Initializable {
             sidebarObject.getColumns().forEach(columnInfo -> {
                 if (columnInfo.isPk()){
                     listViewDetail.getItems().add(new SidebarObjectDetail(columnInfo, "bi-key-fill", Color.BLACK));
+                }else if (!columnInfo.isPk() && !columnInfo.getFk().getColumnName().isEmpty()){
+                    listViewDetail.getItems().add(new SidebarObjectDetail(columnInfo, "bi-key", Color.BLACK));
                 }else {
                     listViewDetail.getItems().add(new SidebarObjectDetail(columnInfo, "bi-table", Color.BLACK));
                 }

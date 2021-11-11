@@ -1,6 +1,7 @@
 package com.github.ffrancoc.foca.lib;
 
 import com.github.ffrancoc.foca.model.ColumnInfo;
+import com.github.ffrancoc.foca.model.FKInfo;
 import com.github.ffrancoc.foca.model.TableInfo;
 
 import java.sql.*;
@@ -75,8 +76,8 @@ public class Conexion {
             ResultSet rs = md.getColumns(null, null, table, null);
             while (rs.next()) {
                 boolean pk = rs.getString("COLUMN_NAME").equals(pkColumn(conn, table));
-                columns.add(new ColumnInfo(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME")+"("+rs.getInt("COLUMN_SIZE")+")", pk));
-                fkColumn(conn, table, rs.getString("COLUMN_NAME"));
+                FKInfo fkInfo = fkColumn(conn, table, rs.getString("COLUMN_NAME"));
+                columns.add(new ColumnInfo(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME")+"("+rs.getInt("COLUMN_SIZE")+")", pk, fkInfo));
                 //columnInfo.setName(rs.getString("COLUMN_NAME"));
                 //columnInfo.setType(rs.getString("TYPE_NAME")+"("+rs.getInt("COLUMN_SIZE")+")");
                 //String name = rs.getString("COLUMN_NAME");
@@ -108,8 +109,9 @@ public class Conexion {
         return pkColumn;
     }
 
-    private static void fkColumn(Connection conn, String tableName, String colName) {
+    private static FKInfo fkColumn(Connection conn, String tableName, String colName) {
         //String pkColumn = "";
+        FKInfo fkInfo = new FKInfo();
         try {
             DatabaseMetaData md = conn.getMetaData();
             ResultSet rs = md.getImportedKeys(null, null, tableName);
@@ -120,20 +122,17 @@ public class Conexion {
                 String constraint_name = rs.getString("PKCOLUMN_NAME");
 
                 if (column_name.equals(colName)){
-                    System.out.println("  "+column_name+" reference to "+ pk_table+"("+constraint_name+")");
-                    System.out.println(tableName+" "+colName);
-                    System.out.println("");
+                    fkInfo.setColumnName(column_name);
+                    fkInfo.setTableParent(pk_table);
+                    //System.out.println("  "+column_name+" reference to "+ pk_table+"("+constraint_name+")");
+                    //System.out.println(tableName+" "+colName);
+                    //System.out.println("");
                 }
-
-
-                //System.out.println("  "+column_name+" reference to "+ pk_table+"("+constraint_name+")");
-                //System.out.println("getPrimaryKeys(): columnName=" + columnName);
-
             }
         }catch (SQLException e) {
             System.err.println("Error to load fk column info, "+e.getMessage());
         }
-        //return pkColumn;
+        return fkInfo;
     }
 
 
