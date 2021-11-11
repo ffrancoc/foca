@@ -12,6 +12,7 @@ public class MainApplication extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("layout/main-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
+        scene.getStylesheets().add(MainApplication.class.getResource("css/light.css").toExternalForm());
         stage.setTitle("Foca");
         stage.setScene(scene);
         stage.show();
