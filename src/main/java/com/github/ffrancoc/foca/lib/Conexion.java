@@ -35,6 +35,16 @@ public class Conexion {
         return conn;
     }
 
+    public static void close(Connection conn) {
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                System.err.println("Error to close database, " + e.getMessage());
+            }
+        }
+    }
+
 
     public static ArrayList<TableInfo> getTableNames(Connection conn) {
         ArrayList<TableInfo> tables = new ArrayList<>();

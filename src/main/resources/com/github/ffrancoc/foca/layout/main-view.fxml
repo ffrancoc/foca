@@ -8,6 +8,7 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -19,6 +20,20 @@
    <children>
       <VBox prefHeight="600.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
+            <ToolBar prefHeight="40.0" prefWidth="200.0">
+              <items>
+                <Button fx:id="btnCloseConn" mnemonicParsing="false" onAction="#onActionCloseConn" styleClass="flat-button">
+                     <graphic>
+                        <FontIcon iconLiteral="bi-power" iconSize="16" />
+                     </graphic>
+                  </Button>
+                  <Button fx:id="btnOpenConn" mnemonicParsing="false" onAction="#onActionOpenConn" styleClass="flat-button">
+                     <graphic>
+                        <FontIcon iconLiteral="bi-hdd-stack-fill" iconSize="16" />
+                     </graphic>
+                  </Button>
+              </items>
+            </ToolBar>
             <SplitPane fx:id="spContainer" dividerPositions="0.34461152882205515" prefHeight="600.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
                <items>
                   <AnchorPane fx:id="sbContainer" maxWidth="300.0" minWidth="200.0" prefWidth="230.0">
@@ -33,7 +48,7 @@
                                        </font>
                                     </Label>
                                     <Pane HBox.hgrow="ALWAYS" />
-                                    <Button mnemonicParsing="false" onAction="#onActionLoadDB" styleClass="flat-button">
+                                    <Button fx:id="btnLoadDB" mnemonicParsing="false" onAction="#onActionLoadDB" styleClass="flat-button">
                                        <graphic>
                                           <FontIcon iconLiteral="bi-arrow-repeat" iconSize="16" />
                                        </graphic>

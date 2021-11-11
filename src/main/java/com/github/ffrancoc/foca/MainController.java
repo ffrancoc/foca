@@ -30,6 +30,13 @@ public class MainController implements Initializable {
     private Connection conn;
     private AnchorPane sbContainer;
 
+    // Toolbar widgets
+    @FXML
+    private Button btnCloseConn;
+
+    @FXML
+    private Button btnOpenConn;
+
     @FXML
     private SplitPane spContainer;
 
@@ -37,15 +44,49 @@ public class MainController implements Initializable {
     private VBox sidebar;
 
     @FXML
+    private Button btnLoadDB;
+
+    @FXML
     private VBox sidebarDetail;
 
     @FXML
     private HBox hbStatusbar;
 
+
+    @FXML
+    private void onActionCloseConn(ActionEvent event) {
+        if (conn != null) {
+            Conexion.close(conn);
+            ListView listView = (ListView) sidebar.getChildren().get(1);
+            listView.getItems().clear();
+
+            Label status = (Label) ((HBox) sidebar.getChildren().get(0)).getChildren().get(0);
+            status.setText("Objects(0)");
+
+            btnLoadDB.setDisable(true);
+
+            ListView listViewDetail = (ListView) sidebarDetail.getChildren().get(2);
+            listViewDetail.getItems().clear();
+            hideNode(sidebarDetail, true);
+
+            Label connInfo = (Label) hbStatusbar.getChildren().get(1);
+            connInfo.setText("Not connection");
+
+            hideNode(btnCloseConn, true);
+            hideNode(btnOpenConn, false);
+
+
+        }
+    }
+
+    @FXML
+    private void onActionOpenConn(ActionEvent event) {
+
+    }
+
+
     @FXML
     private void onActionLoadDB(ActionEvent event) {
-        Button btnLoadDB = (Button) event.getSource();
-
         ListView listView = (ListView) sidebar.getChildren().get(1);
         listView.getItems().clear();
 
@@ -140,6 +181,7 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        hideNode(btnOpenConn, true);
         hideNode(sidebarDetail, true);
 
 
