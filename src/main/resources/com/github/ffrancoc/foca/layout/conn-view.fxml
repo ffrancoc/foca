@@ -1,14 +1,122 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.github.ffrancoc.foca.layout.ConnView"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane prefHeight="382.0" prefWidth="666.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.ffrancoc.foca.ConnController">
+   <children>
+      <VBox prefHeight="382.0" prefWidth="666.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox prefHeight="382.0" prefWidth="458.0" VBox.vgrow="ALWAYS">
+               <children>
+                  <VBox prefHeight="382.0" prefWidth="426.0" spacing="10.0">
+                     <children>
+                        <HBox>
+                           <children>
+                              <Label prefHeight="22.0" prefWidth="80.0" text="Name">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="txtConnName" promptText="Connection Name" HBox.hgrow="ALWAYS" />
+                           </children>
+                        </HBox>
+                        <HBox>
+                           <children>
+                              <Label prefHeight="22.0" prefWidth="80.0" text="Host">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="txtConnHost" promptText="Hostname (localhost)" HBox.hgrow="ALWAYS" />
+                              <Label prefHeight="22.0" prefWidth="47.0" text="Port">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                                 <padding>
+                                    <Insets left="5.0" />
+                                 </padding>
+                              </Label>
+                              <TextField fx:id="txtConnPort" prefHeight="24.0" prefWidth="94.0" promptText="Port (3306)" />
+                           </children>
+                        </HBox>
+                        <HBox>
+                           <children>
+                              <Label prefHeight="22.0" prefWidth="80.0" text="User">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="txtConnUser" promptText="User Name" HBox.hgrow="ALWAYS" />
+                           </children>
+                        </HBox>
+                        <HBox>
+                           <children>
+                              <Label prefHeight="22.0" prefWidth="80.0" text="Password">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <PasswordField fx:id="txtConnPassword" prefHeight="24.0" promptText="User Password" />
+                           </children>
+                        </HBox>
+                        <HBox>
+                           <children>
+                              <Label prefHeight="22.0" prefWidth="80.0" text="Database">
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="txtConnDB" promptText="Database Name" HBox.hgrow="ALWAYS" />
+                           </children>
+                        </HBox>
+                        <Pane prefHeight="143.0" prefWidth="438.0" />
+                        <HBox spacing="5.0">
+                           <children>
+                              <Button fx:id="btnTestConn" disable="true" mnemonicParsing="false" onAction="#onActionTestConn" text="Test" />
+                              <Pane HBox.hgrow="ALWAYS" />
+                              <Button fx:id="btnSaveConn" disable="true" mnemonicParsing="false" onAction="#onActionSaveConn" text="Save" />
+                              <Button fx:id="btnConnectConn" disable="true" mnemonicParsing="false" onAction="#onActionConnectConn" text="Connect" />
+                           </children>
+                        </HBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="20.0" />
+                     </padding>
+                  </VBox>
+                  <ListView fx:id="saveConnList" prefHeight="382.0" prefWidth="274.0" HBox.hgrow="ALWAYS" />
+               </children>
+            </HBox>
+            <VBox fx:id="msgContainer" prefHeight="199.0" prefWidth="666.0" styleClass="msg-container">
+               <children>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Pane prefHeight="200.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                        <Button mnemonicParsing="false" onAction="#onActionCloseMsgContainer" styleClass="flat-button">
+                           <graphic>
+                              <FontIcon iconLiteral="bi-x" iconSize="16" />
+                           </graphic>
+                        </Button>
+                     </children>
+                  </HBox>
+                  <TextArea fx:id="txtPingMsg" editable="false" focusTraversable="false" prefHeight="200.0" prefWidth="200.0" wrapText="true" />
+               </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+            </VBox>
+         </children>
+      </VBox>
+   </children>
 </AnchorPane>

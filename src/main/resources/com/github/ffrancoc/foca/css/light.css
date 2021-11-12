@@ -26,6 +26,52 @@
     -fx-background-color: #dddad6;
 }
 
+.conn-msg {
+    text-area-background: blue ;
+}
+
+.conn-msg .content {
+    -fx-background-color: text-area-background ;
+}
+
+.msg-container {
+    -fx-background-color: #dddad6;
+    -fx-background-radius: 10px;
+}
+
+.conn-msg-info {
+    -fx-background-insets: 0;
+    -fx-background-color: #dddad6, #dddad6, #dddad6, #dddad6;
+    -fx-border-radius: 10 10 10 10;
+    -fx-background-radius: 10 10 10 10;
+    text-area-background: transparent;
+}
+
+.conn-msg-info .scroll-bar:horizontal {
+    -fx-scale-y: 0;
+}
+
+.conn-msg-info .scroll-bar:vertical {
+    -fx-scale-x: 0.0;
+}
+
+.conn-msg-info .scroll-pane {
+    -fx-background-color: transparent;
+}
+.conn-msg-info .scroll-pane .viewport{
+    -fx-background-color: transparent;
+}
+.conn-msg-info .scroll-pane .content{
+    -fx-background-color: transparent;
+}
+
+.conn-msg-info .content {
+    -fx-background-color: #dddad6, #dddad6, #dddad6, #dddad6;
+    -fx-border-radius: 10 10 10 10;
+    -fx-background-radius: 10 10 10 10;
+}
+
+
 .sidebar,
 .sidebar-list {
     -fx-background-color: #f2f2f2;

@@ -1,33 +1,31 @@
 package com.github.ffrancoc.foca;
 
+import com.github.ffrancoc.foca.dialog.DialogManager;
 import com.github.ffrancoc.foca.lib.Conexion;
 import com.github.ffrancoc.foca.lib.SidebarObject;
 import com.github.ffrancoc.foca.lib.SidebarObjectDetail;
+import com.github.ffrancoc.foca.model.ConnectionObject;
 import com.github.ffrancoc.foca.task.AsyncSidebar;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.javafx.IkonResolver;
+import javafx.stage.Stage;
 
 import java.net.URL;
-import java.sql.Connection;
-import java.sql.Time;
-import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class MainController implements Initializable {
-    private Connection conn;
+    private ConnectionObject connObj;
     private AnchorPane sbContainer;
 
     // Toolbar widgets
@@ -55,8 +53,8 @@ public class MainController implements Initializable {
 
     @FXML
     private void onActionCloseConn(ActionEvent event) {
-        if (conn != null) {
-            Conexion.close(conn);
+        if (connObj.getConn() != null) {
+            Conexion.close(connObj.getConn());
             ListView listView = (ListView) sidebar.getChildren().get(1);
             listView.getItems().clear();
 
@@ -81,58 +79,26 @@ public class MainController implements Initializable {
 
     @FXML
     private void onActionOpenConn(ActionEvent event) {
+        Stage mainStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        DialogManager.showConnDialog(mainStage);
 
+        if(mainStage.getUserData() != null) {
+            connObj = (ConnectionObject) mainStage.getUserData();
+
+            hideNode(btnOpenConn, true);
+            hideNode(btnCloseConn, false);
+
+            Label connInfo = (Label) hbStatusbar.getChildren().get(1);
+            connInfo.setText(connObj.getUrl());
+
+            loadData();
+        }
     }
 
 
     @FXML
     private void onActionLoadDB(ActionEvent event) {
-        ListView listView = (ListView) sidebar.getChildren().get(1);
-        listView.getItems().clear();
-
-        Label status = (Label) ((HBox) sidebar.getChildren().get(0)).getChildren().get(0);
-        Label connInfo = (Label) hbStatusbar.getChildren().get(1);
-        status.setText("Objects(0)");
-
-        ListView listViewDetail = (ListView) sidebarDetail.getChildren().get(2);
-        listViewDetail.getItems().clear();
-        hideNode(sidebarDetail, true);
-
-        //long startTime = System.currentTimeMillis();
-        //System.out.println("Start:"+startTime);
-
-        AsyncSidebar asyncSidebar = new AsyncSidebar(conn, sidebar);
-        asyncSidebar.setOnRunning(running -> {
-            btnLoadDB.setDisable(true);
-
-            ProgressIndicator indicator = new ProgressIndicator();
-            indicator.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
-            indicator.setPrefWidth(15);
-            indicator.setPrefHeight(15);
-
-            connInfo.setGraphic(indicator);
-        });
-
-        asyncSidebar.setOnSucceeded(succeded -> {
-            btnLoadDB.setDisable(false);
-            connInfo.setGraphic(null);
-
-            /*
-            long stopTime = System.currentTimeMillis();
-            System.out.println("Stop:"+stopTime);
-            long elapsedTime = stopTime - startTime;
-            long minutes = TimeUnit.MILLISECONDS.toMinutes(elapsedTime);
-            System.out.println("Seconds:"+ TimeUnit.MILLISECONDS.toSeconds(elapsedTime));
-            System.out.println("Minutes:"+minutes);
-
-             */
-        });
-
-
-        ExecutorService service = Executors.newFixedThreadPool(2);
-        service.execute(asyncSidebar);
-        service.shutdown();
-
+        loadData();
     }
 
     @FXML
@@ -181,14 +147,16 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        hideNode(btnOpenConn, true);
+        hideNode(btnCloseConn, true);
         hideNode(sidebarDetail, true);
+        btnLoadDB.setDisable(true);
 
 
+        /*
         conn = Conexion.connect("sis_inventario", "@dmin21", "@dmin21");
         Label connInfo = (Label) hbStatusbar.getChildren().get(1);
         connInfo.setText("@dmin21@localhost:3306/sis_inventario");
-
+        */
 
         ListView listView = (ListView) sidebar.getChildren().get(1);
         listView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
@@ -209,6 +177,59 @@ public class MainController implements Initializable {
                 newPill.getStyleClass().add("sidebar-list-item-pill");
             }
         });
+    }
+
+    private void loadData() {
+        ListView listView = (ListView) sidebar.getChildren().get(1);
+        listView.getItems().clear();
+
+        Label status = (Label) ((HBox) sidebar.getChildren().get(0)).getChildren().get(0);
+        //Label connInfo = (Label) hbStatusbar.getChildren().get(1);
+        status.setText("Objects(0)");
+
+        ListView listViewDetail = (ListView) sidebarDetail.getChildren().get(2);
+        listViewDetail.getItems().clear();
+        hideNode(sidebarDetail, true);
+
+        //long startTime = System.currentTimeMillis();
+        //System.out.println("Start:"+startTime);
+
+        AsyncSidebar asyncSidebar = new AsyncSidebar(connObj.getConn(), sidebar);
+        asyncSidebar.setOnRunning(running -> {
+            btnCloseConn.setDisable(true);
+            btnLoadDB.setDisable(true);
+
+            status.setGraphic(progressIndicator());
+        });
+
+        asyncSidebar.setOnSucceeded(succeded -> {
+            btnCloseConn.setDisable(false);
+            btnLoadDB.setDisable(false);
+            status.setGraphic(null);
+
+            /*
+            long stopTime = System.currentTimeMillis();
+            System.out.println("Stop:"+stopTime);
+            long elapsedTime = stopTime - startTime;
+            long minutes = TimeUnit.MILLISECONDS.toMinutes(elapsedTime);
+            System.out.println("Seconds:"+ TimeUnit.MILLISECONDS.toSeconds(elapsedTime));
+            System.out.println("Minutes:"+minutes);
+
+             */
+        });
+
+
+        ExecutorService service = Executors.newFixedThreadPool(1);
+        service.execute(asyncSidebar);
+        service.shutdown();
+    }
+
+    private ProgressIndicator progressIndicator() {
+        ProgressIndicator indicator = new ProgressIndicator();
+        indicator.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+        indicator.setPrefWidth(15);
+        indicator.setPrefHeight(15);
+        return indicator;
     }
 
     private void hideNode(Node node, boolean status) {

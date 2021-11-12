@@ -138,7 +138,7 @@
                         <FontIcon iconLiteral="bi-layout-sidebar-inset" iconSize="16" />
                      </graphic>
                   </Button>
-                  <Label prefHeight="23.0" prefWidth="433.0" text="hostname" />
+                  <Label prefHeight="23.0" prefWidth="433.0" text="Not connection" />
                </children>
             </HBox>
          </children>

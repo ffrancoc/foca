@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public class SidebarObject extends HBox {
     private String name;
     private String iconName;
+    private Label colsNumber;
     private int count;
     private Color color;
     private ArrayList<ColumnInfo> columns;
@@ -43,8 +44,11 @@ public class SidebarObject extends HBox {
         fontIcon.setIconColor(color);
         title.setGraphic(fontIcon);
 
-        Label colsNumber = new Label(""+count);
+        colsNumber = new Label(""+count);
         colsNumber.getStyleClass().add("data-pill");
+
+        //Label colsNumber = new Label(""+count);
+        //colsNumber.getStyleClass().add("data-pill");
 
 
         Pane separator = new Pane();

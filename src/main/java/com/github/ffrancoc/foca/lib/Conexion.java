@@ -1,9 +1,11 @@
 package com.github.ffrancoc.foca.lib;
 
 import com.github.ffrancoc.foca.model.ColumnInfo;
+import com.github.ffrancoc.foca.model.ConnectionObject;
 import com.github.ffrancoc.foca.model.FKInfo;
 import com.github.ffrancoc.foca.model.TableInfo;
 import javafx.concurrent.Task;
+import javafx.scene.control.Label;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -14,25 +16,40 @@ import java.util.concurrent.Executors;
 public class Conexion {
     // JDBC driver name and database URL
     private static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mariadb://localhost:3306/";
+    private static final String DB_URL = "jdbc:mariadb://";
+    //private static final String DB_URL = "jdbc:mariadb://localhost:3306/";
 
-    public static Connection connect(String dbName, String user, String pass) {
+    public static ConnectionObject connect(String url, String user, String pass) {
         Connection conn = null;
+        ConnectionObject connObj = new ConnectionObject(conn, "");
+
         try {
             // Register JDBC driver
             Class.forName(JDBC_DRIVER);
 
             // Open a connection
-            System.out.println("Connecting to a selected database...");
-            conn = DriverManager.getConnection(DB_URL+dbName, user, pass);
-            DatabaseMetaData metaData = conn.getMetaData();
-            System.out.println(metaData.getURL());
-            System.out.println("Connected database successfully...");
+            conn = DriverManager.getConnection(url, user, pass);
+            connObj.setConn(conn);
+            connObj.setMessage("Connection succesfully");
         } catch (ClassNotFoundException | SQLException e) {
-            System.err.println("Error to connect to database, "+e.getMessage());
+            connObj.setMessage("Error to connect to database, "+e.getMessage());
+            //System.err.println("Error to connect to database, "+e.getMessage());
         }
 
-        return conn;
+        return connObj;
+    }
+
+
+    public static boolean valid(Connection conn) {
+        boolean ping = false;
+        try {
+            ping =  conn.isValid(10);
+        }catch (SQLException e) {
+            System.err.println("Error to ping database, "+e.getMessage());
+        }finally {
+            Conexion.close(conn);
+        }
+        return ping;
     }
 
     public static void close(Connection conn) {
@@ -54,6 +71,7 @@ public class Conexion {
             while (rs.next()) {
                 ArrayList<ColumnInfo> columns = Conexion.columnData(conn, rs.getString("TABLE_NAME"));
                 tables.add(new TableInfo(rs.getString("TABLE_NAME"), countData(conn, rs.getString("TABLE_NAME")), columns));
+                //tables.add(new TableInfo(rs.getString("TABLE_NAME")));
                 //tables.add(rs.getString("TABLE_NAME"));
                 //System.out.println(rs.getString("TABLE_NAME")+"("+countData(conn, rs.getString("TABLE_NAME"))+")");
                 //System.out.println(rs.getString("TABLE_NAME"));
@@ -74,6 +92,7 @@ public class Conexion {
             while (rs.next()) {
                 ArrayList<ColumnInfo> columns = Conexion.columnData(conn, rs.getString("TABLE_NAME"));
                 views.add(new TableInfo(rs.getString("TABLE_NAME"), countData(conn, rs.getString("TABLE_NAME")), columns));
+                //views.add(new TableInfo(rs.getString("TABLE_NAME")));
 //                System.out.println(rs.getString("TABLE_NAME")+"("+countData(conn, rs.getString("TABLE_NAME"))+")");
                 //System.out.println(rs.getString("TABLE_NAME"));
             }
@@ -109,7 +128,7 @@ public class Conexion {
         return columns;
     }
 
-    private static String pkColumn(Connection conn, String tableName) {
+    public static String pkColumn(Connection conn, String tableName) {
             String pkColumn = "";
         try {
             DatabaseMetaData md = conn.getMetaData();
@@ -125,7 +144,7 @@ public class Conexion {
         return pkColumn;
     }
 
-    private static FKInfo fkColumn(Connection conn, String tableName, String colName) {
+    public static FKInfo fkColumn(Connection conn, String tableName, String colName) {
         //String pkColumn = "";
         FKInfo fkInfo = new FKInfo();
         try {
@@ -138,7 +157,7 @@ public class Conexion {
                 String constraint_name = rs.getString("PKCOLUMN_NAME");
 
                 if (column_name.equals(colName)){
-                    fkInfo.setColumnName(column_name);
+                    fkInfo.setColumnName(pk_column);
                     fkInfo.setTableParent(pk_table);
                     //System.out.println("  "+column_name+" reference to "+ pk_table+"("+constraint_name+")");
                     //System.out.println(tableName+" "+colName);
@@ -156,11 +175,10 @@ public class Conexion {
         int count = 0;
         try {
             String query = "SELECT COUNT(*) FROM `" + table+"`;";
-            PreparedStatement  statement = conn.prepareStatement(query);
-            ResultSet rs = statement.executeQuery();
-            while (rs.next()){
-                count = rs.getInt(1);
-            }
+            Statement  statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(query);
+            rs.next();
+            count = rs.getInt(1);
         } catch (SQLException e) {
             System.err.println("Error to load count data from table, "+e.getMessage());
         }

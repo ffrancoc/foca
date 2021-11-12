@@ -28,10 +28,6 @@ public class TableInfo {
         return columns;
     }
 
-    public void setColumns(ArrayList<ColumnInfo> columns) {
-        this.columns = columns;
-    }
-
     public TableInfo(String name, int count, ArrayList<ColumnInfo> columns) {
         this.name = name;
         this.count = count;
