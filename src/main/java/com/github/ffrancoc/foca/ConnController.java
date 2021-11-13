@@ -9,11 +9,9 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.sql.Connection;
 import java.util.ResourceBundle;
 
 public class ConnController implements Initializable {
@@ -41,7 +39,7 @@ public class ConnController implements Initializable {
     private ListView saveConnList;
 
     @FXML
-    private TextArea txtPingMsg;
+    private TextArea txtConnMsgArea;
 
     @FXML
     private Button btnTestConn;
@@ -80,13 +78,13 @@ public class ConnController implements Initializable {
 
         if (connObj.getConn() != null){
             hideNode(msgContainer, false);
-            txtPingMsg.setText("Connection Successfully");
-            txtPingMsg.getStyleClass().add("conn-msg-info");
+            txtConnMsgArea.setText("Connection Successfully");
+            txtConnMsgArea.getStyleClass().add("conn-msg-info");
             Conexion.close(connObj.getConn());
         }else {
             hideNode(msgContainer, false);
-            txtPingMsg.setText("Connection failed, "+connObj.getMessage());
-            txtPingMsg.getStyleClass().add("conn-msg-info");
+            txtConnMsgArea.setText("Connection failed, "+connObj.getMessage());
+            txtConnMsgArea.getStyleClass().add("conn-msg-info");
         }
     }
 
@@ -126,8 +124,8 @@ public class ConnController implements Initializable {
             stage.close();
         }else {
             hideNode(msgContainer, false);
-            txtPingMsg.setText("Connection failed, "+connObj.getMessage());
-            txtPingMsg.getStyleClass().add("conn-msg-info");
+            txtConnMsgArea.setText("Connection failed, "+connObj.getMessage());
+            txtConnMsgArea.getStyleClass().add("conn-msg-info");
         }
     }
 
@@ -136,6 +134,7 @@ public class ConnController implements Initializable {
         hideNode(msgContainer, true);
     }
 
+    // Funcion para guardar el stage principal
     public void setMainStage(Stage mainStage) {
         this.mainStage = mainStage;
     }
@@ -144,19 +143,21 @@ public class ConnController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         hideNode(msgContainer, true);
 
-        // Validation events
+        // Evento de validacion para validar numero entero
         txtConnPort.textProperty().addListener((observableValue, oldValue, newValue) -> {
             if (!newValue.matches("\\d*")) {
                 txtConnPort.setText(newValue.replaceAll("[^\\d]", ""));
             }
         });
 
+        // Evento de validacion
         txtConnName.addEventHandler(KeyEvent.KEY_TYPED, this::validationEvent);
         txtConnUser.addEventHandler(KeyEvent.KEY_TYPED, this::validationEvent);
         txtConnPassword.addEventHandler(KeyEvent.KEY_TYPED, this::validationEvent);
         txtConnDB.addEventHandler(KeyEvent.KEY_TYPED, this::validationEvent);
     }
 
+    // Funcion de validacion para informacion de los campos de conexion
     private void validationEvent(KeyEvent event) {
         if (!txtConnUser.getText().isEmpty() && !txtConnPassword.getText().isEmpty() && !txtConnDB.getText().isEmpty() && !txtConnName.getText().isEmpty()) {
             disableButtons(false);
@@ -169,12 +170,14 @@ public class ConnController implements Initializable {
         }
     }
 
+    // Funcion para deshabilitar los botones
     private void disableButtons(boolean status) {
         btnTestConn.setDisable(status);
         btnSaveConn.setDisable(status);
         btnConnectConn.setDisable(status);
     }
 
+    // Funcion para ocultar un widget
     private void hideNode(Node node, boolean status) {
         node.setVisible(!status);
         node.setManaged(!status);

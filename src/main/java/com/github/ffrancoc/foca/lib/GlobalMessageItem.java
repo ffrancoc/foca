@@ -1,7 +1,6 @@
 package com.github.ffrancoc.foca.lib;
 
 import javafx.scene.control.Label;
-import javafx.scene.paint.Color;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.sql.Timestamp;

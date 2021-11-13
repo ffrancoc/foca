@@ -55,10 +55,6 @@ public class EntityObject extends HBox {
         colsNumber = new Label(""+count);
         colsNumber.getStyleClass().add("data-pill");
 
-        //Label colsNumber = new Label(""+count);
-        //colsNumber.getStyleClass().add("data-pill");
-
-
         Pane separator = new Pane();
 
         getChildren().addAll(title, separator, colsNumber);

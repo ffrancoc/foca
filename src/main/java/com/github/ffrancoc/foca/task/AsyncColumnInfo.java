@@ -16,6 +16,7 @@ public class AsyncColumnInfo extends Task<ArrayList<ColumnInfo>> {
         this.tableName = tableName;
     }
 
+    // Funcion que retorna un array con informacion de las columnas
     @Override
     protected ArrayList<ColumnInfo> call() throws Exception {
         ArrayList<ColumnInfo> columns = Conexion.columnData(conn, tableName);

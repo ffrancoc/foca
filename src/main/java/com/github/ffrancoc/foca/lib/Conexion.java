@@ -1,36 +1,28 @@
 package com.github.ffrancoc.foca.lib;
 
 import com.github.ffrancoc.foca.model.*;
-import javafx.concurrent.Task;
-import javafx.scene.control.Label;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Conexion {
-    // JDBC driver name and database URL
+    // nombre del driver
     private static final String JDBC_DRIVER = "org.mariadb.jdbc.Driver";
-    private static final String DB_URL = "jdbc:mariadb://";
-    //private static final String DB_URL = "jdbc:mariadb://localhost:3306/";
 
     public static ConnectionObject connect(String url, String user, String pass) {
         Connection conn = null;
         ConnectionObject connObj = new ConnectionObject(conn, "");
 
         try {
-            // Register JDBC driver
+            // Registro del driver
             Class.forName(JDBC_DRIVER);
 
-            // Open a connection
+            // Creacion de la conexion
             conn = DriverManager.getConnection(url, user, pass);
             connObj.setConn(conn);
             connObj.setMessage("Connection succesfully");
         } catch (ClassNotFoundException | SQLException e) {
             connObj.setMessage("Error to connect to database, "+e.getMessage());
-            //System.err.println("Error to connect to database, "+e.getMessage());
         }
 
         return connObj;
@@ -47,7 +39,7 @@ public class Conexion {
         }
     }
 
-    // Consulting
+    // Funcion que devuelve las columnas y filas de una consulta
     public static QueryData executeQuery(Connection conn, String sqlQuery) {
         ArrayList<String> columns = new ArrayList<>();
         ArrayList<ArrayList<String>> rows = new ArrayList<>();
@@ -78,31 +70,29 @@ public class Conexion {
     }
 
 
-    // Metadata
+    // Funciones de Metadata
+    // Funcion que devuelve el nombre de todas las tablas en la base de datos
     public static ArrayList<TableInfo> getTableNames(Connection conn) {
         ArrayList<TableInfo> tables = new ArrayList<>();
         try {
             DatabaseMetaData md = conn.getMetaData();
             ResultSet rs = md.getTables(null, null, "%", new String[]{"TABLE"});
             while (rs.next()) {
-                //ArrayList<ColumnInfo> columns = Conexion.columnData(conn, rs.getString("TABLE_NAME"));
                 tables.add(new TableInfo(rs.getString("TABLE_NAME"), countData(conn, rs.getString("TABLE_NAME"))));
             }
         }catch (SQLException e) {
             System.err.println("Error to load table names from database, "+e.getMessage());
         }
-
         return tables;
     }
 
-
+    // Funcion que devuelve el nombre de todas las vistas en la base de datos
     public static ArrayList<TableInfo> getViewNames(Connection conn) {
         ArrayList<TableInfo> views = new ArrayList<>();
         try {
             DatabaseMetaData md = conn.getMetaData();
             ResultSet rs = md.getTables(null, null, "%", new String[]{"VIEW"});
             while (rs.next()) {
-                //ArrayList<ColumnInfo> columns = Conexion.columnData(conn, rs.getString("TABLE_NAME"));
                 views.add(new TableInfo(rs.getString("TABLE_NAME"), countData(conn, rs.getString("TABLE_NAME"))));
             }
         }catch (SQLException e) {
@@ -112,23 +102,20 @@ public class Conexion {
         return views;
     }
 
-    public static ArrayList<ColumnInfo> columnData(Connection conn, String table) {
+    // Funcion que devuelve informacion de columnas de una tabla
+    public static ArrayList<ColumnInfo> columnData(Connection conn, String tableName) {
         ArrayList<ColumnInfo> columns = new ArrayList<>();
         try {
             DatabaseMetaData md = conn.getMetaData();
-            ResultSet rs = md.getColumns(null, null, table, null);
+            ResultSet rs = md.getColumns(null, null, tableName, null);
             while (rs.next()) {
-                boolean pk = rs.getString("COLUMN_NAME").equals(pkColumn(conn, table));
-                FKInfo fkInfo = fkColumn(conn, table, rs.getString("COLUMN_NAME"));
+                // Verificar si la columna es llave primaria
+                boolean pk = rs.getString("COLUMN_NAME").equals(pkColumn(conn, tableName));
+                // Obtener todas las columnas que sean llaves foraneas
+                FKInfo fkInfo = fkColumn(conn, tableName, rs.getString("COLUMN_NAME"));
+                // Guardando la informacion de las columnas de la tabla
                 ColumnInfo columnInfo = new ColumnInfo(rs.getString("COLUMN_NAME"), rs.getString("TYPE_NAME")+"("+rs.getInt("COLUMN_SIZE")+")", pk, fkInfo);
                 columns.add(columnInfo);
-                //columnInfo.setName(rs.getString("COLUMN_NAME"));
-                //columnInfo.setType(rs.getString("TYPE_NAME")+"("+rs.getInt("COLUMN_SIZE")+")");
-                //String name = rs.getString("COLUMN_NAME");
-                //String type = rs.getString("TYPE_NAME");
-                //int size = rs.getInt("COLUMN_SIZE");
-
-                //System.out.println("Column name: [" + name + "]; type: [" + type + "]; size: [" + size + "]");
             }
         }catch (SQLException e) {
             System.err.println("Error to load column info, "+e.getMessage());
@@ -137,6 +124,7 @@ public class Conexion {
         return columns;
     }
 
+    // Funcion que devuelve el nombre de la columna que contiene la llave llave primaria de la tabla
     public static String pkColumn(Connection conn, String tableName) {
             String pkColumn = "";
         try {
@@ -144,8 +132,6 @@ public class Conexion {
             ResultSet rs = md.getPrimaryKeys(null, null, tableName);
             while (rs.next()) {
                 pkColumn = rs.getString("COLUMN_NAME");
-                //System.out.println("getPrimaryKeys(): columnName=" + columnName);
-
             }
         }catch (SQLException e) {
             System.err.println("Error to load pk column info, "+e.getMessage());
@@ -153,8 +139,8 @@ public class Conexion {
         return pkColumn;
     }
 
+    // Funcion que devuelve informacion de las llaves foraneas de la tabla
     public static FKInfo fkColumn(Connection conn, String tableName, String colName) {
-        //String pkColumn = "";
         FKInfo fkInfo = new FKInfo();
         try {
             DatabaseMetaData md = conn.getMetaData();
@@ -163,14 +149,12 @@ public class Conexion {
                 String column_name = rs.getString("FKCOLUMN_NAME");
                 String pk_table = rs.getString("PKTABLE_NAME");
                 String pk_column = rs.getString("PKCOLUMN_NAME");
-                String constraint_name = rs.getString("PKCOLUMN_NAME");
+                //String constraint_name = rs.getString("PKCOLUMN_NAME");
 
                 if (column_name.equals(colName)){
+                    // Guardar el nombre de la tabla de referencia y columna de la misma
                     fkInfo.setColumnName(pk_column);
                     fkInfo.setTableParent(pk_table);
-                    //System.out.println("  "+column_name+" reference to "+ pk_table+"("+constraint_name+")");
-                    //System.out.println(tableName+" "+colName);
-                    //System.out.println("");
                 }
             }
         }catch (SQLException e) {
@@ -180,6 +164,7 @@ public class Conexion {
     }
 
 
+    // Funcion que devuelve el numero de filas de una tabla
     public static int countData(Connection conn,  String table) {
         int count = 0;
         try {

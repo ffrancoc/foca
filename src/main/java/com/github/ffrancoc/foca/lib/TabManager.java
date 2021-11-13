@@ -2,7 +2,6 @@ package com.github.ffrancoc.foca.lib;
 
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.paint.Color;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 public class TabManager {

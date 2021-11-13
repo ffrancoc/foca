@@ -23,6 +23,7 @@ public class AsyncSqlManager extends Task<Void> {
         this.resultInfo = resultInfo;
     }
 
+    // Funcion para cargar informacion de la consulta ejecutada a una tabla
     @Override
     protected Void call() throws Exception {
         QueryData queryData = Conexion.executeQuery(conn, sqlQuery);
@@ -31,6 +32,7 @@ public class AsyncSqlManager extends Task<Void> {
         return null;
     }
 
+    // Actualizar informacion de la tabla
     private void updateData(TableView tableView) {
         Platform.runLater(() -> {
             tab.setContent(tableView);
@@ -38,10 +40,10 @@ public class AsyncSqlManager extends Task<Void> {
         });
     }
 
+    // Creacion de la tabla
     private void initTable(ArrayList<String> columns, ArrayList<ArrayList<String>> rows) {
         TableView tableView = new TableView();
-
-
+        
         for (int c = 0; c < columns.size(); c++) {
             TableColumn<ArrayList<String>, String> tc = new TableColumn(columns.get(c));
             tc.setReorderable(false);

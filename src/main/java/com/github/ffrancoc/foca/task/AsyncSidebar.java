@@ -23,24 +23,24 @@ public class AsyncSidebar extends Task<Void> {
         this.sidebar = sidebar;
     }
 
+    // Funcion para cargar informacion de entiaddes al listview del sidebar
     @Override
     protected Void call() throws Exception {
         ArrayList<TableInfo> tables = Conexion.getTableNames(conn);
         tables.forEach(table -> {
                 load(new EntityObject(table.getName(), "bi-table", table.getCount(), Color.DODGERBLUE));
-                //load(itemData(table.getName(), "bi-table", table.getCount(), Color.DODGERBLUE));
         });
 
 
         ArrayList<TableInfo> views = Conexion.getViewNames(conn);
         views.forEach(view -> {
             load(new EntityObject(view.getName(), "bi-table", view.getCount(), Color.web("#0c5ba0")));
-            //load(itemData(view.getName(), "bi-table", view.getCount(), Color.web("#0c5ba0")));
         });
 
         return null;
     }
 
+    // Funcion para actualiza informacion del sidebar
     private void load(HBox row) {
         Platform.runLater(() -> {
             ListView listView = (ListView) sidebar.getChildren().get(1);

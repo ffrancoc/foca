@@ -251,11 +251,11 @@ public class MainController implements Initializable {
     private void loadColmunDetails(EntityObject sidebarObject, ListView listViewDetail) {
         sidebarObject.getColumns().forEach(columnInfo -> {
             if (columnInfo.isPk()){
-                listViewDetail.getItems().add(new SidebarObjectDetail(columnInfo, "bi-key-fill", Color.BLACK));
+                listViewDetail.getItems().add(new SidebarColumnDetail(columnInfo, "bi-key-fill", Color.BLACK));
             }else if (!columnInfo.isPk() && !columnInfo.getFk().getColumnName().isEmpty()){
-                listViewDetail.getItems().add(new SidebarObjectDetail(columnInfo, "bi-key", Color.BLACK));
+                listViewDetail.getItems().add(new SidebarColumnDetail(columnInfo, "bi-key", Color.BLACK));
             }else {
-                listViewDetail.getItems().add(new SidebarObjectDetail(columnInfo, "bi-table", Color.BLACK));
+                listViewDetail.getItems().add(new SidebarColumnDetail(columnInfo, "bi-table", Color.BLACK));
             }
         });
 
@@ -396,7 +396,7 @@ public class MainController implements Initializable {
 
             appendGlobalMessage("Database load succesfully", IconHelper.icon("bi-info-circle", Color.DODGERBLUE));
         });
-        
+
         ExecutorService service = Executors.newFixedThreadPool(1);
         service.execute(asyncSidebar);
         service.shutdown();

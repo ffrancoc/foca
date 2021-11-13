@@ -38,19 +38,8 @@ public class ColumnInfo {
         this.fk = fk;
     }
 
-    public ColumnInfo(){
-
-    }
-
     public ColumnInfo(String name, String type) {
         this.name = name;
         this.type = type;
-    }
-
-    public ColumnInfo(String name, String type, boolean pk, FKInfo fkInfo) {
-        this.name = name;
-        this.type = type;
-        this.pk = pk;
-        this.fk = fkInfo;
     }
 }

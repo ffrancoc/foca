@@ -31,10 +31,6 @@ public class ConnectionObject {
         this.url = url;
     }
 
-    public ConnectionObject() {
-
-    }
-
     public ConnectionObject(Connection conn, String message) {
         this.conn = conn;
         this.message = message;
