@@ -2,6 +2,7 @@ package com.github.ffrancoc.foca;
 
 import com.github.ffrancoc.foca.dialog.DialogManager;
 import com.github.ffrancoc.foca.lib.Conexion;
+import com.github.ffrancoc.foca.lib.GlobalMessageItem;
 import com.github.ffrancoc.foca.lib.SidebarObject;
 import com.github.ffrancoc.foca.lib.SidebarObjectDetail;
 import com.github.ffrancoc.foca.model.ConnectionObject;
@@ -18,8 +19,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -51,6 +55,11 @@ public class MainController implements Initializable {
     private HBox hbStatusbar;
 
 
+
+    @FXML
+    private ListView globalMsgList;
+
+
     @FXML
     private void onActionCloseConn(ActionEvent event) {
         if (connObj.getConn() != null) {
@@ -72,6 +81,9 @@ public class MainController implements Initializable {
 
             hideNode(btnCloseConn, true);
             hideNode(btnOpenConn, false);
+
+
+            globalMsgList.getItems().clear();
 
 
         }
@@ -216,6 +228,9 @@ public class MainController implements Initializable {
             System.out.println("Minutes:"+minutes);
 
              */
+
+            GlobalMessageItem globalMsgItem = new GlobalMessageItem("Database load succesfully", "bi-info-circle-fill", Color.DODGERBLUE);
+            globalMsgList.getItems().add(0, globalMsgItem);
         });
 
 
