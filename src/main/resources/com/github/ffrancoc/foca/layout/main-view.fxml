@@ -7,7 +7,6 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -20,8 +19,8 @@
    <children>
       <VBox prefHeight="600.0" prefWidth="800.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <ToolBar prefHeight="40.0" prefWidth="200.0">
-              <items>
+            <HBox prefHeight="22.0" prefWidth="800.0" spacing="5.0">
+               <children>
                 <Button fx:id="btnCloseConn" mnemonicParsing="false" onAction="#onActionCloseConn" styleClass="flat-button">
                      <graphic>
                         <FontIcon iconLiteral="bi-power" iconSize="16" />
@@ -32,8 +31,19 @@
                         <FontIcon iconLiteral="bi-hdd-stack-fill" iconSize="16" />
                      </graphic>
                   </Button>
-              </items>
-            </ToolBar>
+                  <Pane HBox.hgrow="ALWAYS" />
+                  <Button fx:id="btnEditorStatus" mnemonicParsing="false" onAction="#onActionEditorStatus" styleClass="flat-button">
+                     <graphic>
+                        <FontIcon iconLiteral="bi-file-binary-fill" iconSize="16" />
+                     </graphic>
+                  </Button>
+                  <Button fx:id="btnTpResultStatus" mnemonicParsing="false" onAction="#onActionTpResultStatus" styleClass="flat-button">
+                     <graphic>
+                        <FontIcon iconLiteral="bi-table" iconSize="16" />
+                     </graphic>
+                  </Button>
+               </children>
+            </HBox>
             <SplitPane fx:id="spContainer" dividerPositions="0.34461152882205515" prefHeight="600.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
                <items>
                   <AnchorPane fx:id="sbContainer" maxWidth="300.0" minWidth="100.0" prefWidth="200.0">
@@ -92,9 +102,9 @@
                                     <ListView onMouseClicked="#onMouseClickedSidebarList" styleClass="sidebar-list" VBox.vgrow="ALWAYS" />
                                  </children>
                               </VBox>
-                              <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" HBox.hgrow="ALWAYS">
+                              <SplitPane fx:id="spRight" dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" HBox.hgrow="ALWAYS">
                                 <items>
-                                  <AnchorPane maxHeight="300.0" minHeight="150.0" prefHeight="200.0">
+                                  <AnchorPane fx:id="editorContainer" accessibleText="editorContainer" maxHeight="300.0" minHeight="150.0" prefHeight="200.0">
                                        <children>
                                           <TabPane layoutX="83.0" layoutY="43.0" prefHeight="269.0" prefWidth="340.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <tabs>
@@ -110,11 +120,11 @@
                                             </tabs>
                                           </TabPane>
                                        </children></AnchorPane>
-                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="234.0" prefWidth="340.0">
+                                  <AnchorPane fx:id="resultContainer" accessibleText="resultContainer" minHeight="0.0" minWidth="0.0" prefHeight="234.0" prefWidth="340.0">
                                        <children>
                                           <TabPane fx:id="tpResult" layoutX="97.0" layoutY="103.0" prefHeight="268.0" prefWidth="340.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <tabs>
-                                              <Tab closable="false" text="Messages">
+                                              <Tab fx:id="tabMessages" closable="false" text="Messages">
                                                 <content>
                                                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                                          <children>
@@ -142,7 +152,13 @@
                         <FontIcon iconLiteral="bi-layout-sidebar-inset" iconSize="16" />
                      </graphic>
                   </Button>
-                  <Label prefHeight="23.0" prefWidth="433.0" text="Not connection" />
+                  <Label prefHeight="23.0" prefWidth="523.0" text="Not connection" />
+                  <Pane HBox.hgrow="ALWAYS" />
+                  <Label alignment="CENTER_RIGHT" prefHeight="24.0" prefWidth="242.0">
+                     <HBox.margin>
+                        <Insets right="5.0" />
+                     </HBox.margin>
+                  </Label>
                </children>
             </HBox>
          </children>

@@ -19,6 +19,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
@@ -33,7 +34,10 @@ import java.util.concurrent.Executors;
 
 public class MainController implements Initializable {
     private ConnectionObject connObj;
+
     private AnchorPane sbContainer;
+    private AnchorPane editorContainer;
+    private AnchorPane resultContainer;
 
     // Toolbar widgets
     @FXML
@@ -43,7 +47,16 @@ public class MainController implements Initializable {
     private Button btnOpenConn;
 
     @FXML
+    private Button btnEditorStatus;
+
+    @FXML
+    private Button btnTpResultStatus;
+
+    @FXML
     private SplitPane spContainer;
+
+    @FXML
+    private SplitPane spRight;
 
     @FXML
     private VBox sidebar;
@@ -62,6 +75,9 @@ public class MainController implements Initializable {
 
     @FXML
     private TabPane tpResult;
+
+    @FXML
+    private Tab tabMessages;
 
     @FXML
     private ListView globalMsgList;
@@ -91,6 +107,10 @@ public class MainController implements Initializable {
 
 
             globalMsgList.getItems().clear();
+            Tab tmpTab = tabMessages;
+            tpResult.getTabs().clear();
+            tpResult.getTabs().add(tmpTab);
+
 
 
         }
@@ -114,6 +134,30 @@ public class MainController implements Initializable {
         }
     }
 
+    @FXML
+    private void onActionEditorStatus(ActionEvent event) {
+        int spRightSize = spRight.getItems().size();
+        if (spRightSize == 2) {
+            editorContainer=  (AnchorPane) spRight.getItems().get(0);
+            spRight.getItems().remove(0);
+        } else if (spRightSize == 1 && ((AnchorPane) spRight.getItems().get(0)).getAccessibleText().equals("editorContainer")) {
+            editorContainer =  (AnchorPane) spRight.getItems().get(0);
+            spRight.getItems().remove(0);
+        }
+    }
+
+
+    @FXML
+    private void onActionTpResultStatus(ActionEvent event) {
+        int spRightSize = spRight.getItems().size();
+        if (spRightSize == 2) {
+            resultContainer =  (AnchorPane) spRight.getItems().get(1);
+            spRight.getItems().remove(1);
+        } else if (spRightSize == 1 && ((AnchorPane) spRight.getItems().get(0)).getAccessibleText().equals("resultContainer")) {
+            resultContainer =  (AnchorPane) spRight.getItems().get(0);
+            spRight.getItems().remove(0);
+        }
+    }
 
     @FXML
     private void onActionLoadDB(ActionEvent event) {
@@ -197,6 +241,21 @@ public class MainController implements Initializable {
                 newPill.getStyleClass().add("sidebar-list-item-pill");
             }
         });
+
+        tabMessages.setGraphic(icon("bi-info-circle-fill", Color.DODGERBLUE));
+        tpResult.getSelectionModel().selectedItemProperty().addListener((observableValue, oldTab, newTab) -> {
+            Label resultInfo = (Label) hbStatusbar.getChildren().get(3);
+            if (newTab != null) {
+                if (!newTab.getText().equals("Messages")) {
+                    TableView tv = (TableView) newTab.getContent();
+                    if (tv != null) {
+                        resultInfo.setText("col: " + tv.getColumns().size() + " | row: " + tv.getItems().size());
+                    }
+                } else {
+                    resultInfo.setText("");
+                }
+            }
+        });
     }
 
     private void loadData() {
@@ -245,19 +304,21 @@ public class MainController implements Initializable {
                     String sqlQuery = "SELECT * FROM `" +sidebarObj.getName()+"` LIMIT 100;";
 
                     Tab tab = new Tab(sidebarObj.getName());
+                    tab.setGraphic(icon("bi-table", Color.DODGERBLUE));
                     tpResult.getTabs().add(tab);
                     tpResult.getSelectionModel().select(tab);
 
-                    AsyncSqlManager sqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tab);
+                    Label resultInfo = (Label) hbStatusbar.getChildren().get(3);
+                    AsyncSqlManager sqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tab, resultInfo);
 
                     sqlManager.setOnRunning(running -> {
                         tab.setClosable(false);
-                        tab.setGraphic(progressIndicator());
                     });
 
                     sqlManager.setOnSucceeded(succeded2 -> {
                         tab.setClosable(true);
-                        tab.setGraphic(null);
+                        appendGlobalMessage("SELECT 100 ROWS FROM `" +sidebarObj.getName()+"`", "bi-code-square", Color.DODGERBLUE);
+
                     });
 
 
@@ -266,12 +327,41 @@ public class MainController implements Initializable {
                     service.shutdown();
                 });
 
-                contextMenu.getItems().add(showHundredRow);
+
+                MenuItem showAlldRow = new MenuItem("Show All rows");
+                showAlldRow.setOnAction(action -> {
+                    String sqlQuery = "SELECT * FROM `" +sidebarObj.getName()+"`;";
+
+                    Tab tab = new Tab(sidebarObj.getName());
+                    tab.setGraphic(icon("bi-table", Color.DODGERBLUE));
+                    tpResult.getTabs().add(tab);
+                    tpResult.getSelectionModel().select(tab);
+
+                    Label resultInfo = (Label) hbStatusbar.getChildren().get(3);
+                    AsyncSqlManager sqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tab, resultInfo);
+
+                    sqlManager.setOnRunning(running -> {
+                        tab.setClosable(false);
+                    });
+
+                    sqlManager.setOnSucceeded(succeded2 -> {
+                        tab.setClosable(true);
+                        appendGlobalMessage("SELECT ALL ROWS FROM `" +sidebarObj.getName()+"`", "bi-code-square", Color.DODGERBLUE);
+
+                    });
+
+
+                    ExecutorService service = Executors.newFixedThreadPool(1);
+                    service.execute(sqlManager);
+                    service.shutdown();
+                });
+
+
+                contextMenu.getItems().addAll(showHundredRow, showAlldRow);
                 sidebarObj.getTitle().setContextMenu(contextMenu);
             });
 
-            GlobalMessageItem globalMsgItem = new GlobalMessageItem("Database load succesfully", "bi-info-circle-fill", Color.DODGERBLUE);
-            globalMsgList.getItems().add(0, globalMsgItem);
+            appendGlobalMessage("Database load succesfully", "bi-info-circle", Color.DODGERBLUE);
         });
 
 
@@ -280,12 +370,23 @@ public class MainController implements Initializable {
         service.shutdown();
     }
 
+    private void appendGlobalMessage(String message, String iconName, Color iconColor) {
+        GlobalMessageItem globalMsgItem = new GlobalMessageItem(message, iconName, iconColor);
+        globalMsgList.getItems().add(0, globalMsgItem);
+    }
+
     private ProgressIndicator progressIndicator() {
         ProgressIndicator indicator = new ProgressIndicator();
         indicator.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
         indicator.setPrefWidth(15);
         indicator.setPrefHeight(15);
         return indicator;
+    }
+
+    private FontIcon icon(String iconName, Color iconColor) {
+        FontIcon icon = new FontIcon(iconName);
+        icon.setIconColor(iconColor);
+        return icon;
     }
 
     private void hideNode(Node node, boolean status) {

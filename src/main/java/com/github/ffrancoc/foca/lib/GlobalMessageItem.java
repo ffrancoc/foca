@@ -15,6 +15,7 @@ public class GlobalMessageItem extends Label {
         Timestamp timestamp = new Timestamp(date.getTime());
         setText(message + " "+timestamp.toString());
         FontIcon icon = new FontIcon(iconName);
+        icon.setIconSize(16);
         icon.setIconColor(iconColor);
         setGraphic(icon);
 
