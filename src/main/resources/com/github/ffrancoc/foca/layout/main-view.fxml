@@ -43,10 +43,13 @@
                            <children>
                               <HBox prefHeight="31.0" prefWidth="275.0" style="-fx-background-color: #dddad6;">
                                  <children>
-                                    <Label fx:id="lblSidebarEntitiesInfo" prefHeight="24.0" prefWidth="130.0" text="Entities(0)">
+                                    <Label fx:id="lblSidebarEntitiesInfo" prefHeight="28.0" prefWidth="130.0" text="Entities(0)">
                                        <font>
                                           <Font name="System Bold" size="11.0" />
                                        </font>
+                                       <padding>
+                                          <Insets left="5.0" />
+                                       </padding>
                                     </Label>
                                     <Pane HBox.hgrow="ALWAYS" />
                                     <Button fx:id="btnSidebarLoadDB" mnemonicParsing="false" onAction="#onActionLoadDB" styleClass="flat-button">

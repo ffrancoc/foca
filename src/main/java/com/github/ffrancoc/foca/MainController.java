@@ -165,6 +165,56 @@ public class MainController implements Initializable {
             }else {
                 loadColmunDetails(entityObject, lvColumnInfo);
             }
+
+            lvColumnInfo.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+                if(oldValue != null) {
+                    VBox vbox = (VBox) oldValue;
+                    Label oldColumnName;
+                    Label oldColumnFKName;
+                    Label oldColumnTypeData;
+
+                    if (vbox.getChildren().size() == 2){
+                        oldColumnName = (Label) vbox.getChildren().get(0);
+                        oldColumnTypeData = (Label) vbox.getChildren().get(1);
+
+                        oldColumnName.getStyleClass().remove("sidebar-list-item");
+                        oldColumnTypeData.getStyleClass().remove("sidebar-list-item-pill");
+
+                    }else if (vbox.getChildren().size() == 3) {
+                        oldColumnName = (Label) vbox.getChildren().get(0);
+                        oldColumnFKName = (Label) vbox.getChildren().get(1);
+                        oldColumnTypeData = (Label) vbox.getChildren().get(2);
+
+                        oldColumnName.getStyleClass().remove("sidebar-list-item");
+                        oldColumnFKName.getStyleClass().remove("sidebar-list-item");
+                        oldColumnTypeData.getStyleClass().remove("sidebar-list-item-pill");
+                    }
+                }
+
+                if (newValue != null) {
+                    VBox vbox = (VBox) newValue;
+                    Label newColumnName;
+                    Label newColumnFKName;
+                    Label newColumnTypeData;
+
+                    if (vbox.getChildren().size() == 2){
+                        newColumnName = (Label) vbox.getChildren().get(0);
+                        newColumnTypeData = (Label) vbox.getChildren().get(1);
+
+                        newColumnName.getStyleClass().add("sidebar-list-item");
+                        newColumnTypeData.getStyleClass().add("sidebar-list-item-pill");
+
+                    }else if (vbox.getChildren().size() == 3) {
+                        newColumnName = (Label) vbox.getChildren().get(0);
+                        newColumnFKName = (Label) vbox.getChildren().get(1);
+                        newColumnTypeData = (Label) vbox.getChildren().get(2);
+
+                        newColumnName.getStyleClass().add("sidebar-list-item");
+                        newColumnFKName.getStyleClass().add("sidebar-list-item");
+                        newColumnTypeData.getStyleClass().add("sidebar-list-item-pill");
+                    }
+                }
+            });
         }
     }
 
