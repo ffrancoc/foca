@@ -99,12 +99,13 @@ public class MainController implements Initializable {
     @FXML
     private Label sbLblResultInfo;
 
-
     // Evento para cerrar la conexion actual
     @FXML
     private void onActionCloseConn(ActionEvent event) {
+        Stage mainStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         if (connObj.getConn() != null) {
             Conexion.close(connObj.getConn());
+            mainStage.setUserData(null);
 
             lvEntity.getItems().clear();
             lblSidebarEntitiesInfo.setText("Entities(0)");
@@ -386,7 +387,6 @@ public class MainController implements Initializable {
 
         if(mainStage.getUserData() != null) {
             connObj = (ConnectionObject) mainStage.getUserData();
-
             hideNode(btnOpenConn, true);
             hideNode(btnCloseConn, false);
 

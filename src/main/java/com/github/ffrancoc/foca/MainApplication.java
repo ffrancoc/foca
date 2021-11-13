@@ -2,6 +2,7 @@ package com.github.ffrancoc.foca;
 
 import com.github.ffrancoc.foca.db.ApplicationSetting;
 import com.github.ffrancoc.foca.model.ConfigurationApp;
+import com.github.ffrancoc.foca.model.ConnectionObject;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -46,7 +47,6 @@ public class MainApplication extends Application {
                 ApplicationSetting.saveSettings(appConfig, true);
                 System.out.println(appConfig.getWindowProperty().toString());
             }
-
         });
 
     }

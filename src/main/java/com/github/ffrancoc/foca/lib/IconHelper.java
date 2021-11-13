@@ -18,4 +18,11 @@ public class IconHelper {
         icon.setIconColor(iconColor);
         return icon;
     }
+
+    public static FontIcon icon(String iconName, Color iconColor, int iconSize) {
+        FontIcon icon = new FontIcon(iconName);
+        icon.setIconColor(iconColor);
+        icon.setIconSize(iconSize);
+        return icon;
+    }
 }

@@ -1,6 +1,7 @@
 package com.github.ffrancoc.foca.db;
 
 import com.github.ffrancoc.foca.model.ConfigurationApp;
+import com.github.ffrancoc.foca.model.ConnProperty;
 import com.github.ffrancoc.foca.model.WindowProperty;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,6 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
+import java.util.ArrayList;
 
 public class ApplicationSetting {
     private static String DIRECTORY = System.getProperty("user.home")+ File.separator+".FocaGuiDB";
@@ -41,7 +43,8 @@ public class ApplicationSetting {
     public static void initDefaultSettings(){
         createSettingDirectory();
         WindowProperty windowProperty = new WindowProperty(800, 600, 0, 0);
-        ConfigurationApp appConfig = new ConfigurationApp(windowProperty);
+        ArrayList<ConnProperty> saveConnection = new ArrayList<>();
+        ConfigurationApp appConfig = new ConfigurationApp(windowProperty, saveConnection);
         saveSettings(appConfig, false);
     }
 
