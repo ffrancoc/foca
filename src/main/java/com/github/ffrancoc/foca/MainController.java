@@ -211,6 +211,21 @@ public class MainController implements Initializable {
         }
     }
 
+    @FXML
+    private void onActionCloseSelectedTab(ActionEvent event) {
+        int index = tpResult.getSelectionModel().getSelectedIndex();
+        if (index > 0) {
+            tpResult.getTabs().remove(index);
+        }
+    }
+
+    @FXML
+    private void onActionCloseAllTab(ActionEvent event) {
+        Tab tmpTab = tabMessage;
+        tpResult.getTabs().clear();
+        tpResult.getTabs().add(tmpTab);
+    }
+
     // Funcion principal del stage
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {

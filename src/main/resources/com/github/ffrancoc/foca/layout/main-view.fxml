@@ -112,7 +112,7 @@
                                                     </Tab>
                                                   </tabs>
                                                 </TabPane>
-                                                <VBox>
+                                                <VBox spacing="2.0">
                                                    <children>
                                                       <ToggleButton mnemonicParsing="false" onAction="#onActionResizeTPEditor" styleClass="flat-button">
                                                          <graphic>
@@ -141,13 +141,23 @@
                                                     </Tab>
                                                   </tabs>
                                                 </TabPane>
-                                                <VBox>
+                                                <VBox spacing="2.0">
                                                    <children>
                                                       <ToggleButton mnemonicParsing="false" onAction="#onActionResizeTPResult" styleClass="flat-button">
                                                          <graphic>
                                                             <FontIcon iconLiteral="bi-arrow-down-up" iconSize="16" />
                                                          </graphic>
                                                       </ToggleButton>
+                                                      <Button mnemonicParsing="false" onAction="#onActionCloseSelectedTab" styleClass="flat-button">
+                                                         <graphic>
+                                                            <FontIcon iconLiteral="bi-x-square" iconSize="16" />
+                                                         </graphic>
+                                                      </Button>
+                                                      <Button mnemonicParsing="false" onAction="#onActionCloseAllTab" styleClass="flat-button">
+                                                         <graphic>
+                                                            <FontIcon iconLiteral="bi-x-square-fill" iconSize="16" />
+                                                         </graphic>
+                                                      </Button>
                                                    </children>
                                                 </VBox>
                                              </children>
