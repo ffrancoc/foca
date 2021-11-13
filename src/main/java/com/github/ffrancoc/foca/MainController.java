@@ -46,6 +46,12 @@ public class MainController implements Initializable {
     private SplitPane spMainContainer;
 
     @FXML
+    private SplitPane spRight;
+
+    @FXML
+    private AnchorPane resultContainer;
+
+    @FXML
     private VBox vbSidebarContainer;
 
     @FXML
@@ -178,6 +184,30 @@ public class MainController implements Initializable {
         }else {
             // Para mostrar el sidebar se vuelve a agregar el mismo de la variable temporal
             spMainContainer.getItems().add(0, sbContainer);
+        }
+    }
+
+
+    @FXML
+    private void onActionResizeTPEditor(ActionEvent event) {
+        ToggleButton btnResizeTPResult = (ToggleButton) event.getSource();
+
+        if (btnResizeTPResult.isSelected()) {
+            spRight.setDividerPositions(0.9);
+        }else {
+            spRight.setDividerPositions(0.5);
+        }
+    }
+
+
+    @FXML
+    private void onActionResizeTPResult(ActionEvent event) {
+        ToggleButton btnResizeTPResult = (ToggleButton) event.getSource();
+
+        if (btnResizeTPResult.isSelected()) {
+            spRight.setDividerPositions(0.1);
+        }else {
+            spRight.setDividerPositions(0.5);
         }
     }
 

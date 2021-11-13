@@ -7,6 +7,7 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -92,39 +93,65 @@
                                     <ListView fx:id="lvColumnInfo" onMouseClicked="#onMouseClickedEntityList" styleClass="sidebar-list" VBox.vgrow="ALWAYS" />
                                  </children>
                               </VBox>
-                              <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" HBox.hgrow="ALWAYS">
+                              <SplitPane fx:id="spRight" dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0" HBox.hgrow="ALWAYS">
                                 <items>
                                   <AnchorPane fx:id="editorContainer" minHeight="100.0" prefHeight="200.0">
                                        <children>
-                                          <TabPane layoutX="83.0" layoutY="43.0" prefHeight="269.0" prefWidth="340.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                            <tabs>
-                                              <Tab text="Editor">
-                                                <content>
-                                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                                         <children>
-                                                            <CodeArea fx:id="singleQueryEditor" autoHeight="true" layoutX="58.0" layoutY="69.0" prefHeight="238.0" prefWidth="340.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                                                         </children>
-                                                      </AnchorPane>
-                                                </content>
-                                              </Tab>
-                                            </tabs>
-                                          </TabPane>
+                                          <HBox prefHeight="274.0" prefWidth="340.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <children>
+                                                <TabPane prefHeight="269.0" prefWidth="340.0" tabClosingPolicy="UNAVAILABLE" HBox.hgrow="ALWAYS">
+                                                  <tabs>
+                                                    <Tab text="Editor">
+                                                      <content>
+                                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                               <children>
+                                                                  <CodeArea fx:id="singleQueryEditor" autoHeight="true" layoutX="58.0" layoutY="69.0" prefHeight="238.0" prefWidth="340.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                               </children>
+                                                            </AnchorPane>
+                                                      </content>
+                                                    </Tab>
+                                                  </tabs>
+                                                </TabPane>
+                                                <VBox>
+                                                   <children>
+                                                      <ToggleButton mnemonicParsing="false" onAction="#onActionResizeTPEditor" styleClass="flat-button">
+                                                         <graphic>
+                                                            <FontIcon iconLiteral="bi-arrow-down-up" iconSize="16" />
+                                                         </graphic>
+                                                      </ToggleButton>
+                                                   </children>
+                                                </VBox>
+                                             </children>
+                                          </HBox>
                                        </children></AnchorPane>
                                   <AnchorPane fx:id="resultContainer" minHeight="100.0" prefHeight="234.0">
                                        <children>
-                                          <TabPane fx:id="tpResult" layoutX="97.0" layoutY="103.0" prefHeight="268.0" prefWidth="340.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                            <tabs>
-                                              <Tab fx:id="tabMessage" closable="false" text="Messages">
-                                                <content>
-                                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                                         <children>
-                                                            <ListView fx:id="lvGlobalMsgList" layoutX="34.0" layoutY="19.0" prefHeight="237.0" prefWidth="340.0" styleClass="sidebar-list" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                                                         </children>
-                                                      </AnchorPane>
-                                                </content>
-                                              </Tab>
-                                            </tabs>
-                                          </TabPane>
+                                          <HBox prefHeight="273.0" prefWidth="340.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                             <children>
+                                                <TabPane fx:id="tpResult" prefHeight="268.0" prefWidth="340.0" HBox.hgrow="ALWAYS">
+                                                  <tabs>
+                                                    <Tab fx:id="tabMessage" closable="false" text="Messages">
+                                                      <content>
+                                                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                                               <children>
+                                                                  <ListView fx:id="lvGlobalMsgList" layoutX="34.0" layoutY="19.0" prefHeight="237.0" prefWidth="340.0" styleClass="sidebar-list" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                                               </children>
+                                                            </AnchorPane>
+                                                      </content>
+                                                    </Tab>
+                                                  </tabs>
+                                                </TabPane>
+                                                <VBox>
+                                                   <children>
+                                                      <ToggleButton mnemonicParsing="false" onAction="#onActionResizeTPResult" styleClass="flat-button">
+                                                         <graphic>
+                                                            <FontIcon iconLiteral="bi-arrow-down-up" iconSize="16" />
+                                                         </graphic>
+                                                      </ToggleButton>
+                                                   </children>
+                                                </VBox>
+                                             </children>
+                                          </HBox>
                                        </children>
                                     </AnchorPane>
                                 </items>
