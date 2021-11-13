@@ -7,6 +7,7 @@ import com.github.ffrancoc.foca.lib.SidebarObject;
 import com.github.ffrancoc.foca.lib.SidebarObjectDetail;
 import com.github.ffrancoc.foca.model.ConnectionObject;
 import com.github.ffrancoc.foca.task.AsyncSidebar;
+import com.github.ffrancoc.foca.task.AsyncSqlManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -58,6 +59,9 @@ public class MainController implements Initializable {
 
     @FXML
     private CodeArea queryEditor;
+
+    @FXML
+    private TabPane tpResult;
 
     @FXML
     private ListView globalMsgList;
@@ -230,8 +234,41 @@ public class MainController implements Initializable {
             long minutes = TimeUnit.MILLISECONDS.toMinutes(elapsedTime);
             System.out.println("Seconds:"+ TimeUnit.MILLISECONDS.toSeconds(elapsedTime));
             System.out.println("Minutes:"+minutes);
-
              */
+
+            // Add ListView ContextMenu
+            listView.getItems().forEach(object -> {
+                SidebarObject sidebarObj = (SidebarObject) object;
+                ContextMenu contextMenu = new ContextMenu();
+                MenuItem showHundredRow = new MenuItem("Show 100 rows");
+                showHundredRow.setOnAction(action -> {
+                    String sqlQuery = "SELECT * FROM `" +sidebarObj.getName()+"` LIMIT 100;";
+
+                    Tab tab = new Tab(sidebarObj.getName());
+                    tpResult.getTabs().add(tab);
+                    tpResult.getSelectionModel().select(tab);
+
+                    AsyncSqlManager sqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tab);
+
+                    sqlManager.setOnRunning(running -> {
+                        tab.setClosable(false);
+                        tab.setGraphic(progressIndicator());
+                    });
+
+                    sqlManager.setOnSucceeded(succeded2 -> {
+                        tab.setClosable(true);
+                        tab.setGraphic(null);
+                    });
+
+
+                    ExecutorService service = Executors.newFixedThreadPool(1);
+                    service.execute(sqlManager);
+                    service.shutdown();
+                });
+
+                contextMenu.getItems().add(showHundredRow);
+                sidebarObj.getTitle().setContextMenu(contextMenu);
+            });
 
             GlobalMessageItem globalMsgItem = new GlobalMessageItem("Database load succesfully", "bi-info-circle-fill", Color.DODGERBLUE);
             globalMsgList.getItems().add(0, globalMsgItem);

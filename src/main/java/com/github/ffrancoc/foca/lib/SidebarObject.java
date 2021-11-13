@@ -11,12 +11,17 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import java.util.ArrayList;
 
 public class SidebarObject extends HBox {
+    private Label title;
     private String name;
     private String iconName;
     private Label colsNumber;
     private int count;
     private Color color;
     private ArrayList<ColumnInfo> columns;
+
+    public Label getTitle() {
+        return title;
+    }
 
     public String getName() {
         return name;
@@ -39,7 +44,7 @@ public class SidebarObject extends HBox {
     private void init() {
         setSpacing(5);
 
-        Label title = new Label(name);
+        title = new Label(name);
         FontIcon fontIcon = new FontIcon(iconName);
         fontIcon.setIconColor(color);
         title.setGraphic(fontIcon);

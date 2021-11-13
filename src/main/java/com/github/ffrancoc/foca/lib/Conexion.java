@@ -1,9 +1,6 @@
 package com.github.ffrancoc.foca.lib;
 
-import com.github.ffrancoc.foca.model.ColumnInfo;
-import com.github.ffrancoc.foca.model.ConnectionObject;
-import com.github.ffrancoc.foca.model.FKInfo;
-import com.github.ffrancoc.foca.model.TableInfo;
+import com.github.ffrancoc.foca.model.*;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 
@@ -40,18 +37,6 @@ public class Conexion {
     }
 
 
-    public static boolean valid(Connection conn) {
-        boolean ping = false;
-        try {
-            ping =  conn.isValid(10);
-        }catch (SQLException e) {
-            System.err.println("Error to ping database, "+e.getMessage());
-        }finally {
-            Conexion.close(conn);
-        }
-        return ping;
-    }
-
     public static void close(Connection conn) {
         if (conn != null) {
             try {
@@ -62,7 +47,38 @@ public class Conexion {
         }
     }
 
+    // Consulting
+    public static QueryData executeQuery(Connection conn, String sqlQuery) {
+        ArrayList<String> columns = new ArrayList<>();
+        ArrayList<ArrayList<String>> rows = new ArrayList<>();
 
+        QueryData queryData = new QueryData(columns, rows);
+
+        try {
+            Statement statement = conn.createStatement();
+            ResultSet rs = statement.executeQuery(sqlQuery);
+            ResultSetMetaData rsMD = rs.getMetaData();
+
+            for( int x = 1; x < rsMD.getColumnCount(); x++) {
+                columns.add(rsMD.getColumnName(x));
+            }
+
+            while (rs.next()) {
+                ArrayList<String> row = new ArrayList<>();
+                for (int x = 1; x < rsMD.getColumnCount(); x++) {
+                    row.add(rs.getString(x));
+                }
+                rows.add(row);
+            }
+
+        }catch (SQLException e) {
+            System.err.println("Error to load execute query from table, "+e.getMessage());
+        }
+        return queryData;
+    }
+
+
+    // Metadata
     public static ArrayList<TableInfo> getTableNames(Connection conn) {
         ArrayList<TableInfo> tables = new ArrayList<>();
         try {
