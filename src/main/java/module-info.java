@@ -2,6 +2,8 @@ module com.github.ffrancoc.foca {
     requires javafx.controls;
     requires javafx.fxml;
 
+    requires org.fxmisc.richtext;
+
     requires org.kordamp.ikonli.javafx;
     requires org.kordamp.ikonli.bootstrapicons;
 

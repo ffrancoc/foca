@@ -19,6 +19,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.fxmisc.richtext.CodeArea;
+import org.fxmisc.richtext.LineNumberFactory;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
@@ -54,7 +56,8 @@ public class MainController implements Initializable {
     @FXML
     private HBox hbStatusbar;
 
-
+    @FXML
+    private CodeArea queryEditor;
 
     @FXML
     private ListView globalMsgList;
@@ -163,6 +166,7 @@ public class MainController implements Initializable {
         hideNode(sidebarDetail, true);
         btnLoadDB.setDisable(true);
 
+        queryEditor.setParagraphGraphicFactory(LineNumberFactory.get(queryEditor));
 
         /*
         conn = Conexion.connect("sis_inventario", "@dmin21", "@dmin21");
