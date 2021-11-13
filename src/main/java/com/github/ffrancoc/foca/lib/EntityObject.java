@@ -10,7 +10,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.util.ArrayList;
 
-public class SidebarObject extends HBox {
+public class EntityObject extends HBox {
     private Label title;
     private String name;
     private String iconName;
@@ -31,13 +31,16 @@ public class SidebarObject extends HBox {
         return columns;
     }
 
-    public SidebarObject(String name, String iconName, int count, Color color, ArrayList<ColumnInfo> columns) {
+    public void setColumns(ArrayList<ColumnInfo> columns) {
+        this.columns = columns;
+    }
+
+    public EntityObject(String name, String iconName, int count, Color color) {
         super();
         this.name = name;
         this.iconName = iconName;
         this.count = count;
         this.color = color;
-        this.columns = columns;
         init();
     }
 

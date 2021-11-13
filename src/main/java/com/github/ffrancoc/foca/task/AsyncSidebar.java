@@ -1,7 +1,7 @@
 package com.github.ffrancoc.foca.task;
 
 import com.github.ffrancoc.foca.lib.Conexion;
-import com.github.ffrancoc.foca.lib.SidebarObject;
+import com.github.ffrancoc.foca.lib.EntityObject;
 import com.github.ffrancoc.foca.model.TableInfo;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -27,14 +27,14 @@ public class AsyncSidebar extends Task<Void> {
     protected Void call() throws Exception {
         ArrayList<TableInfo> tables = Conexion.getTableNames(conn);
         tables.forEach(table -> {
-                load(new SidebarObject(table.getName(), "bi-table", table.getCount(), Color.DODGERBLUE, table.getColumns()));
+                load(new EntityObject(table.getName(), "bi-table", table.getCount(), Color.DODGERBLUE));
                 //load(itemData(table.getName(), "bi-table", table.getCount(), Color.DODGERBLUE));
         });
 
 
         ArrayList<TableInfo> views = Conexion.getViewNames(conn);
         views.forEach(view -> {
-            load(new SidebarObject(view.getName(), "bi-table", view.getCount(), Color.web("#0c5ba0"), view.getColumns()));
+            load(new EntityObject(view.getName(), "bi-table", view.getCount(), Color.web("#0c5ba0")));
             //load(itemData(view.getName(), "bi-table", view.getCount(), Color.web("#0c5ba0")));
         });
 
@@ -47,7 +47,7 @@ public class AsyncSidebar extends Task<Void> {
             listView.getItems().add(row);
 
             Label status = (Label) ((HBox) sidebar.getChildren().get(0)).getChildren().get(0);
-            status.setText("Objects("+listView.getItems().size()+")");
+            status.setText("Entities("+listView.getItems().size()+")");
         });
     }
 }

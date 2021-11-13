@@ -6,7 +6,9 @@
 
 .list-view .list-cell:selected:odd,
 .list-view .list-cell:selected:even {
-    -fx-background-color: #b5cfff;
+    -fx-background-color: #c3e6ff;
+    -fx-border-color: #005A9C;
+    -fx-border-width: 0 0 0 4;
 }
 
 .list-view .list-cell:odd {

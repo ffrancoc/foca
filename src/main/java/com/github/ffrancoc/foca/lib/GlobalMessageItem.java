@@ -9,15 +9,13 @@ import java.util.Date;
 
 public class GlobalMessageItem extends Label {
 
-    public GlobalMessageItem(String message, String iconName, Color iconColor) {
+    public GlobalMessageItem(String message, FontIcon iconMessage) {
         super();
         Date date = new Date();
         Timestamp timestamp = new Timestamp(date.getTime());
         setText(message + " "+timestamp.toString());
-        FontIcon icon = new FontIcon(iconName);
-        icon.setIconSize(16);
-        icon.setIconColor(iconColor);
-        setGraphic(icon);
+        iconMessage.setIconSize(16);
+        setGraphic(iconMessage);
 
         getStyleClass().add("sidebar-list-item");
     }

@@ -85,12 +85,8 @@ public class Conexion {
             DatabaseMetaData md = conn.getMetaData();
             ResultSet rs = md.getTables(null, null, "%", new String[]{"TABLE"});
             while (rs.next()) {
-                ArrayList<ColumnInfo> columns = Conexion.columnData(conn, rs.getString("TABLE_NAME"));
-                tables.add(new TableInfo(rs.getString("TABLE_NAME"), countData(conn, rs.getString("TABLE_NAME")), columns));
-                //tables.add(new TableInfo(rs.getString("TABLE_NAME")));
-                //tables.add(rs.getString("TABLE_NAME"));
-                //System.out.println(rs.getString("TABLE_NAME")+"("+countData(conn, rs.getString("TABLE_NAME"))+")");
-                //System.out.println(rs.getString("TABLE_NAME"));
+                //ArrayList<ColumnInfo> columns = Conexion.columnData(conn, rs.getString("TABLE_NAME"));
+                tables.add(new TableInfo(rs.getString("TABLE_NAME"), countData(conn, rs.getString("TABLE_NAME"))));
             }
         }catch (SQLException e) {
             System.err.println("Error to load table names from database, "+e.getMessage());
@@ -106,11 +102,8 @@ public class Conexion {
             DatabaseMetaData md = conn.getMetaData();
             ResultSet rs = md.getTables(null, null, "%", new String[]{"VIEW"});
             while (rs.next()) {
-                ArrayList<ColumnInfo> columns = Conexion.columnData(conn, rs.getString("TABLE_NAME"));
-                views.add(new TableInfo(rs.getString("TABLE_NAME"), countData(conn, rs.getString("TABLE_NAME")), columns));
-                //views.add(new TableInfo(rs.getString("TABLE_NAME")));
-//                System.out.println(rs.getString("TABLE_NAME")+"("+countData(conn, rs.getString("TABLE_NAME"))+")");
-                //System.out.println(rs.getString("TABLE_NAME"));
+                //ArrayList<ColumnInfo> columns = Conexion.columnData(conn, rs.getString("TABLE_NAME"));
+                views.add(new TableInfo(rs.getString("TABLE_NAME"), countData(conn, rs.getString("TABLE_NAME"))));
             }
         }catch (SQLException e) {
             System.err.println("Error to load view names from database, "+e.getMessage());

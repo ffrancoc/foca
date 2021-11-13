@@ -1,11 +1,9 @@
 package com.github.ffrancoc.foca;
 
 import com.github.ffrancoc.foca.dialog.DialogManager;
-import com.github.ffrancoc.foca.lib.Conexion;
-import com.github.ffrancoc.foca.lib.GlobalMessageItem;
-import com.github.ffrancoc.foca.lib.SidebarObject;
-import com.github.ffrancoc.foca.lib.SidebarObjectDetail;
+import com.github.ffrancoc.foca.lib.*;
 import com.github.ffrancoc.foca.model.ConnectionObject;
+import com.github.ffrancoc.foca.task.AsyncColumnInfo;
 import com.github.ffrancoc.foca.task.AsyncSidebar;
 import com.github.ffrancoc.foca.task.AsyncSqlManager;
 import javafx.event.ActionEvent;
@@ -19,25 +17,22 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainController implements Initializable {
+    // Variable para guardar informacion de la conexión
     private ConnectionObject connObj;
 
+    // Variable para guardar el sidebar cuando esta oculto
     private AnchorPane sbContainer;
-    private AnchorPane editorContainer;
-    private AnchorPane resultContainer;
 
     // Toolbar widgets
     @FXML
@@ -46,184 +41,169 @@ public class MainController implements Initializable {
     @FXML
     private Button btnOpenConn;
 
+    // Main widgets
     @FXML
-    private Button btnEditorStatus;
+    private SplitPane spMainContainer;
 
     @FXML
-    private Button btnTpResultStatus;
+    private VBox vbSidebarContainer;
 
     @FXML
-    private SplitPane spContainer;
+    private Label lblSidebarEntitiesInfo;
 
     @FXML
-    private SplitPane spRight;
+    private Button btnSidebarLoadDB;
 
     @FXML
-    private VBox sidebar;
+    private ListView lvEntity;
 
     @FXML
-    private Button btnLoadDB;
+    private VBox vbSidebarColumnContainer;
 
     @FXML
-    private VBox sidebarDetail;
+    private Label columnInfoLblColumnCount;
 
     @FXML
-    private HBox hbStatusbar;
+    private Label columnInfoLlblTableName;
 
     @FXML
-    private CodeArea queryEditor;
+    private ListView lvColumnInfo;
+
+    @FXML
+    private HBox hbStatusbarContainer;
+
+    @FXML
+    private Label sbLblConnInfo;
+
+    @FXML
+    private CodeArea singleQueryEditor;
 
     @FXML
     private TabPane tpResult;
 
     @FXML
-    private Tab tabMessages;
+    private Tab tabMessage;
 
     @FXML
-    private ListView globalMsgList;
+    private ListView lvGlobalMsgList;
 
 
+    // Estatus bar items
+    @FXML
+    private Label sbLblResultInfo;
+
+
+    // Evento para cerrar la conexion actual
     @FXML
     private void onActionCloseConn(ActionEvent event) {
         if (connObj.getConn() != null) {
             Conexion.close(connObj.getConn());
-            ListView listView = (ListView) sidebar.getChildren().get(1);
-            listView.getItems().clear();
 
-            Label status = (Label) ((HBox) sidebar.getChildren().get(0)).getChildren().get(0);
-            status.setText("Objects(0)");
+            lvEntity.getItems().clear();
+            lblSidebarEntitiesInfo.setText("Entities(0)");
+            btnSidebarLoadDB.setDisable(true);
 
-            btnLoadDB.setDisable(true);
+            lvColumnInfo.getItems().clear();
+            hideNode(vbSidebarColumnContainer, true);
 
-            ListView listViewDetail = (ListView) sidebarDetail.getChildren().get(2);
-            listViewDetail.getItems().clear();
-            hideNode(sidebarDetail, true);
-
-            Label connInfo = (Label) hbStatusbar.getChildren().get(1);
-            connInfo.setText("Not connection");
+            sbLblConnInfo.setText("Not connection");
 
             hideNode(btnCloseConn, true);
             hideNode(btnOpenConn, false);
 
+            singleQueryEditor.clear();
 
-            globalMsgList.getItems().clear();
-            Tab tmpTab = tabMessages;
+            lvGlobalMsgList.getItems().clear();
+            Tab tmpTab = tabMessage;
             tpResult.getTabs().clear();
             tpResult.getTabs().add(tmpTab);
-
-
-
         }
     }
 
+    // Evento para mostrar dialog de conexiones
     @FXML
     private void onActionOpenConn(ActionEvent event) {
         Stage mainStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-        DialogManager.showConnDialog(mainStage);
-
-        if(mainStage.getUserData() != null) {
-            connObj = (ConnectionObject) mainStage.getUserData();
-
-            hideNode(btnOpenConn, true);
-            hideNode(btnCloseConn, false);
-
-            Label connInfo = (Label) hbStatusbar.getChildren().get(1);
-            connInfo.setText(connObj.getUrl());
-
-            loadData();
-        }
+        showDialogConnection(mainStage);
     }
 
-    @FXML
-    private void onActionEditorStatus(ActionEvent event) {
-        int spRightSize = spRight.getItems().size();
-        if (spRightSize == 2) {
-            editorContainer=  (AnchorPane) spRight.getItems().get(0);
-            spRight.getItems().remove(0);
-        } else if (spRightSize == 1 && ((AnchorPane) spRight.getItems().get(0)).getAccessibleText().equals("editorContainer")) {
-            editorContainer =  (AnchorPane) spRight.getItems().get(0);
-            spRight.getItems().remove(0);
-        }
-    }
-
-
-    @FXML
-    private void onActionTpResultStatus(ActionEvent event) {
-        int spRightSize = spRight.getItems().size();
-        if (spRightSize == 2) {
-            resultContainer =  (AnchorPane) spRight.getItems().get(1);
-            spRight.getItems().remove(1);
-        } else if (spRightSize == 1 && ((AnchorPane) spRight.getItems().get(0)).getAccessibleText().equals("resultContainer")) {
-            resultContainer =  (AnchorPane) spRight.getItems().get(0);
-            spRight.getItems().remove(0);
-        }
-    }
-
+    // Evento para volver a cargar la base de datos
     @FXML
     private void onActionLoadDB(ActionEvent event) {
         loadData();
     }
 
     @FXML
-    private void onMouseClickedSidebarList(MouseEvent event) {
-        ListView listView = (ListView) sidebar.getChildren().get(1);
-        int index = listView.getSelectionModel().getSelectedIndex();
+    private void onMouseClickedEntityList(MouseEvent event) {
+        int index = lvEntity.getSelectionModel().getSelectedIndex();
         if (index >= 0 && event.getClickCount() == 2 && event.getButton().equals(MouseButton.PRIMARY)) {
-            SidebarObject sidebarObject = (SidebarObject) listView.getItems().get(index);
-            ListView listViewDetail = (ListView) sidebarDetail.getChildren().get(2);
-            listViewDetail.getItems().clear();
 
-            Label tableName = (Label) (sidebarDetail.getChildren().get(1));
-            tableName.setText(sidebarObject.getName());
+            EntityObject entityObject = (EntityObject) lvEntity.getItems().get(index);
+            lvColumnInfo.getItems().clear();
+            columnInfoLlblTableName.setText(entityObject.getName());
 
-            sidebarObject.getColumns().forEach(columnInfo -> {
-                if (columnInfo.isPk()){
-                    listViewDetail.getItems().add(new SidebarObjectDetail(columnInfo, "bi-key-fill", Color.BLACK));
-                }else if (!columnInfo.isPk() && !columnInfo.getFk().getColumnName().isEmpty()){
-                    listViewDetail.getItems().add(new SidebarObjectDetail(columnInfo, "bi-key", Color.BLACK));
-                }else {
-                    listViewDetail.getItems().add(new SidebarObjectDetail(columnInfo, "bi-table", Color.BLACK));
-                }
-            });
 
-            Label status = (Label) ((HBox) sidebarDetail.getChildren().get(0)).getChildren().get(0);
-            status.setText("Columns("+listViewDetail.getItems().size()+")");
+            // Si la informacion de columnas de la tabla es null cargar la informacion y mostrarla
+            if (entityObject.getColumns() == null) {
+                AsyncColumnInfo asyncColumnInfo = new AsyncColumnInfo(connObj.getConn(), entityObject.getName());
+                asyncColumnInfo.setOnSucceeded(succeeded -> {
+                    entityObject.setColumns(asyncColumnInfo.getValue());
+                    loadColmunDetails(entityObject, lvColumnInfo);
+                });
 
-            hideNode(sidebarDetail, false);
+                ExecutorService service = Executors.newFixedThreadPool(1);
+                service.execute(asyncColumnInfo);
+                service.shutdown();
+
+             // Si la informacion de columnas de la tabla no es null mostrarla
+            }else {
+                loadColmunDetails(entityObject, lvColumnInfo);
+            }
         }
     }
 
+    // Evento para ocultar informacion de las columnas si esta visible
     @FXML
     private void onActionCloseSidebarDetail(ActionEvent event) {
-        hideNode(sidebarDetail, true);
+        hideNode(vbSidebarColumnContainer, true);
     }
 
+    // Evento para ocultar o mostrar el sidebar
     @FXML
     private void onActionHideSidebar(ActionEvent event) {
-        if (spContainer.getItems().size() == 2) {
-            sbContainer = (AnchorPane) spContainer.getItems().get(0);
-            spContainer.getItems().remove(0);
+        if (spMainContainer.getItems().size() == 2) {
+            // Para ocultar el sidebar, se guarda en una variable temporal para liberar el espacio ocupado
+            sbContainer = (AnchorPane) spMainContainer.getItems().get(0);
+            spMainContainer.getItems().remove(0);
         }else {
-            spContainer.getItems().add(0, sbContainer);
+            // Para mostrar el sidebar se vuelve a agregar el mismo de la variable temporal
+            spMainContainer.getItems().add(0, sbContainer);
         }
     }
 
+    // Funcion principal del stage
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Aplicacion de configuraciones iniciales a algunos widgets
         hideNode(btnCloseConn, true);
-        hideNode(sidebarDetail, true);
-        btnLoadDB.setDisable(true);
+        hideNode(vbSidebarColumnContainer, true);
+        btnSidebarLoadDB.setDisable(true);
+        singleQueryEditor.setParagraphGraphicFactory(LineNumberFactory.get(singleQueryEditor));
 
-        queryEditor.setParagraphGraphicFactory(LineNumberFactory.get(queryEditor));
+        // Agregar imagen default para listview vacio
+        Hyperlink lvEntityHolder = new Hyperlink("No data");
+        lvEntityHolder.setGraphic(IconHelper.iconHolder("bi-table", Color.LIGHTGRAY, 50));
+        lvEntityHolder.setContentDisplay(ContentDisplay.TOP);
+        lvEntity.setPlaceholder(lvEntityHolder);
 
-        /*
-        conn = Conexion.connect("sis_inventario", "@dmin21", "@dmin21");
-        Label connInfo = (Label) hbStatusbar.getChildren().get(1);
-        connInfo.setText("@dmin21@localhost:3306/sis_inventario");
-        */
+        // Agregar evento para el hyperlink del place holder de el listview
+        lvEntityHolder.setOnAction(event -> {
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            showDialogConnection(stage);
+        });
 
-        ListView listView = (ListView) sidebar.getChildren().get(1);
-        listView.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+        // Agregar evento de item seleccionado al listview
+        lvEntity.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if(oldValue != null) {
                 Label oldTitle =(Label) ((HBox) oldValue).getChildren().get(0);
                 Label oldPill = (Label) ((HBox) oldValue).getChildren().get(2);
@@ -242,9 +222,18 @@ public class MainController implements Initializable {
             }
         });
 
-        tabMessages.setGraphic(icon("bi-info-circle-fill", Color.DODGERBLUE));
+        // Agregar imagen default para listview de mensajes vacio
+        Label lvGlobalMsgListHolder = new Label("No Messages");
+        lvGlobalMsgListHolder.setGraphic(IconHelper.iconHolder("bi-info-circle", Color.LIGHTGRAY, 50));
+        lvGlobalMsgListHolder.setContentDisplay(ContentDisplay.TOP);
+        lvGlobalMsgList.setPlaceholder(lvGlobalMsgListHolder);
+
+        // Agregar imagen al tab que contiene el listview de mensajes
+        tabMessage.setGraphic(IconHelper.icon("bi-info-circle-fill", Color.DODGERBLUE));
+
+        // Evento para actualizar informacion de columnas y filas de las consultas cuando se cambia de tab
         tpResult.getSelectionModel().selectedItemProperty().addListener((observableValue, oldTab, newTab) -> {
-            Label resultInfo = (Label) hbStatusbar.getChildren().get(3);
+            Label resultInfo = (Label) hbStatusbarContainer.getChildren().get(3);
             if (newTab != null) {
                 if (!newTab.getText().equals("Messages")) {
                     TableView tv = (TableView) newTab.getContent();
@@ -258,33 +247,81 @@ public class MainController implements Initializable {
         });
     }
 
+    // Funcion para cargar informacion de las columnas de una tabla
+    private void loadColmunDetails(EntityObject sidebarObject, ListView listViewDetail) {
+        sidebarObject.getColumns().forEach(columnInfo -> {
+            if (columnInfo.isPk()){
+                listViewDetail.getItems().add(new SidebarObjectDetail(columnInfo, "bi-key-fill", Color.BLACK));
+            }else if (!columnInfo.isPk() && !columnInfo.getFk().getColumnName().isEmpty()){
+                listViewDetail.getItems().add(new SidebarObjectDetail(columnInfo, "bi-key", Color.BLACK));
+            }else {
+                listViewDetail.getItems().add(new SidebarObjectDetail(columnInfo, "bi-table", Color.BLACK));
+            }
+        });
+
+        columnInfoLblColumnCount.setText("Columns("+listViewDetail.getItems().size()+")");
+        hideNode(vbSidebarColumnContainer, false);
+    }
+
+    // Funcion para agregar un mensage al listview de mensajes
+    private void appendGlobalMessage(String message, FontIcon iconMessage) {
+        GlobalMessageItem globalMsgItem = new GlobalMessageItem(message, iconMessage);
+        lvGlobalMsgList.getItems().add(0, globalMsgItem);
+    }
+
+    // Funcion para crear animacion de carga
+    private ProgressIndicator progressIndicator() {
+        ProgressIndicator indicator = new ProgressIndicator();
+        indicator.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
+        indicator.setPrefWidth(15);
+        indicator.setPrefHeight(15);
+        return indicator;
+    }
+
+    // Funcion para ocultar un widget
+    private void hideNode(Node node, boolean status) {
+        node.setVisible(!status);
+        node.setManaged(!status);
+    }
+
+    // Funcion para mostrar el dialog de conexiones
+    private void showDialogConnection(Stage mainStage) {
+        DialogManager.showConnDialog(mainStage);
+
+        if(mainStage.getUserData() != null) {
+            connObj = (ConnectionObject) mainStage.getUserData();
+
+            hideNode(btnOpenConn, true);
+            hideNode(btnCloseConn, false);
+
+            sbLblConnInfo.setText(connObj.getUrl());
+            loadData();
+        }
+    }
+
+    // Funcion para cargar la informacion de las tablas
     private void loadData() {
-        ListView listView = (ListView) sidebar.getChildren().get(1);
-        listView.getItems().clear();
+        lvEntity.getItems().clear();
+        lblSidebarEntitiesInfo.setText("Entities(0)");
 
-        Label status = (Label) ((HBox) sidebar.getChildren().get(0)).getChildren().get(0);
-        //Label connInfo = (Label) hbStatusbar.getChildren().get(1);
-        status.setText("Objects(0)");
-
-        ListView listViewDetail = (ListView) sidebarDetail.getChildren().get(2);
-        listViewDetail.getItems().clear();
-        hideNode(sidebarDetail, true);
+        lvColumnInfo.getItems().clear();
+        hideNode(vbSidebarColumnContainer, true);
 
         //long startTime = System.currentTimeMillis();
         //System.out.println("Start:"+startTime);
 
-        AsyncSidebar asyncSidebar = new AsyncSidebar(connObj.getConn(), sidebar);
+        AsyncSidebar asyncSidebar = new AsyncSidebar(connObj.getConn(), vbSidebarContainer);
         asyncSidebar.setOnRunning(running -> {
             btnCloseConn.setDisable(true);
-            btnLoadDB.setDisable(true);
+            btnSidebarLoadDB.setDisable(true);
 
-            status.setGraphic(progressIndicator());
+            lblSidebarEntitiesInfo.setGraphic(progressIndicator());
         });
 
         asyncSidebar.setOnSucceeded(succeded -> {
             btnCloseConn.setDisable(false);
-            btnLoadDB.setDisable(false);
-            status.setGraphic(null);
+            btnSidebarLoadDB.setDisable(false);
+            lblSidebarEntitiesInfo.setGraphic(null);
 
             /*
             long stopTime = System.currentTimeMillis();
@@ -295,35 +332,36 @@ public class MainController implements Initializable {
             System.out.println("Minutes:"+minutes);
              */
 
-            // Add ListView ContextMenu
-            listView.getItems().forEach(object -> {
-                SidebarObject sidebarObj = (SidebarObject) object;
+            // Agregando menu contextual a cada item de la lista
+            lvEntity.getItems().forEach(object -> {
+                EntityObject sidebarObj = (EntityObject) object;
                 ContextMenu contextMenu = new ContextMenu();
-                MenuItem showHundredRow = new MenuItem("Show 100 rows");
+                MenuItem showHundredRow = new MenuItem("Show Top 100 rows");
                 showHundredRow.setOnAction(action -> {
+                    // SQL Query a ejecutar
                     String sqlQuery = "SELECT * FROM `" +sidebarObj.getName()+"` LIMIT 100;";
 
-                    Tab tab = new Tab(sidebarObj.getName());
-                    tab.setGraphic(icon("bi-table", Color.DODGERBLUE));
-                    tpResult.getTabs().add(tab);
-                    tpResult.getSelectionModel().select(tab);
+                    // Agregar nueva tab para mostrar los resultados de la consulta
+                    Tab tab = TabManager.addTabResult(tpResult, sidebarObj.getName(), IconHelper.icon("bi-table", Color.DODGERBLUE));
 
-                    Label resultInfo = (Label) hbStatusbar.getChildren().get(3);
-                    AsyncSqlManager sqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tab, resultInfo);
+                    // Cargar los datos de la consulta de manera asyncrona en la nueva tab creada
+                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tab, sbLblResultInfo);
 
-                    sqlManager.setOnRunning(running -> {
+                    asyncSqlManager.setOnRunning(running -> {
+                        // deshabilitar que la tab pueda ser cerrada mientras no se cargen los datos
                         tab.setClosable(false);
                     });
 
-                    sqlManager.setOnSucceeded(succeded2 -> {
+                    asyncSqlManager.setOnSucceeded(succeded2 -> {
+                        // permitir que la tab pueda ser cerraaa y agregar mensaje de la consulta realizada a la tab mensajes
                         tab.setClosable(true);
-                        appendGlobalMessage("SELECT 100 ROWS FROM `" +sidebarObj.getName()+"`", "bi-code-square", Color.DODGERBLUE);
+                        appendGlobalMessage("SELECT 100 ROWS FROM `" +sidebarObj.getName()+"`", IconHelper.icon("bi-code-square", Color.DODGERBLUE));
 
                     });
 
-
+                    // Agrenado funcion asyncrona
                     ExecutorService service = Executors.newFixedThreadPool(1);
-                    service.execute(sqlManager);
+                    service.execute(asyncSqlManager);
                     service.shutdown();
                 });
 
@@ -332,65 +370,35 @@ public class MainController implements Initializable {
                 showAlldRow.setOnAction(action -> {
                     String sqlQuery = "SELECT * FROM `" +sidebarObj.getName()+"`;";
 
-                    Tab tab = new Tab(sidebarObj.getName());
-                    tab.setGraphic(icon("bi-table", Color.DODGERBLUE));
-                    tpResult.getTabs().add(tab);
-                    tpResult.getSelectionModel().select(tab);
+                    Tab tab = TabManager.addTabResult(tpResult, sidebarObj.getName(), IconHelper.icon("bi-table", Color.DODGERBLUE));
 
-                    Label resultInfo = (Label) hbStatusbar.getChildren().get(3);
-                    AsyncSqlManager sqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tab, resultInfo);
+                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tab, sbLblResultInfo);
 
-                    sqlManager.setOnRunning(running -> {
+                    asyncSqlManager.setOnRunning(running -> {
                         tab.setClosable(false);
                     });
 
-                    sqlManager.setOnSucceeded(succeded2 -> {
+                    asyncSqlManager.setOnSucceeded(succeded2 -> {
                         tab.setClosable(true);
-                        appendGlobalMessage("SELECT ALL ROWS FROM `" +sidebarObj.getName()+"`", "bi-code-square", Color.DODGERBLUE);
+                        appendGlobalMessage("SELECT ALL ROWS FROM `" +sidebarObj.getName()+"`", IconHelper.icon("bi-code-square", Color.DODGERBLUE));
 
                     });
 
-
                     ExecutorService service = Executors.newFixedThreadPool(1);
-                    service.execute(sqlManager);
+                    service.execute(asyncSqlManager);
                     service.shutdown();
                 });
 
-
+                // Agregando todos los menu item al menu contextual
                 contextMenu.getItems().addAll(showHundredRow, showAlldRow);
                 sidebarObj.getTitle().setContextMenu(contextMenu);
             });
 
-            appendGlobalMessage("Database load succesfully", "bi-info-circle", Color.DODGERBLUE);
+            appendGlobalMessage("Database load succesfully", IconHelper.icon("bi-info-circle", Color.DODGERBLUE));
         });
-
-
+        
         ExecutorService service = Executors.newFixedThreadPool(1);
         service.execute(asyncSidebar);
         service.shutdown();
-    }
-
-    private void appendGlobalMessage(String message, String iconName, Color iconColor) {
-        GlobalMessageItem globalMsgItem = new GlobalMessageItem(message, iconName, iconColor);
-        globalMsgList.getItems().add(0, globalMsgItem);
-    }
-
-    private ProgressIndicator progressIndicator() {
-        ProgressIndicator indicator = new ProgressIndicator();
-        indicator.setProgress(ProgressIndicator.INDETERMINATE_PROGRESS);
-        indicator.setPrefWidth(15);
-        indicator.setPrefHeight(15);
-        return indicator;
-    }
-
-    private FontIcon icon(String iconName, Color iconColor) {
-        FontIcon icon = new FontIcon(iconName);
-        icon.setIconColor(iconColor);
-        return icon;
-    }
-
-    private void hideNode(Node node, boolean status) {
-        node.setVisible(!status);
-        node.setManaged(!status);
     }
 }
