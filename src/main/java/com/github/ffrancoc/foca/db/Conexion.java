@@ -1,4 +1,4 @@
-package com.github.ffrancoc.foca.lib;
+package com.github.ffrancoc.foca.db;
 
 import com.github.ffrancoc.foca.model.*;
 

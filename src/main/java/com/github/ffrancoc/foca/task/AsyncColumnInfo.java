@@ -1,6 +1,6 @@
 package com.github.ffrancoc.foca.task;
 
-import com.github.ffrancoc.foca.lib.Conexion;
+import com.github.ffrancoc.foca.db.Conexion;
 import com.github.ffrancoc.foca.model.ColumnInfo;
 import javafx.concurrent.Task;
 

@@ -1,6 +1,6 @@
 package com.github.ffrancoc.foca.task;
 
-import com.github.ffrancoc.foca.lib.Conexion;
+import com.github.ffrancoc.foca.db.Conexion;
 import com.github.ffrancoc.foca.model.QueryData;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;

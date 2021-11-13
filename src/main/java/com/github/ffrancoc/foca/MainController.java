@@ -1,5 +1,6 @@
 package com.github.ffrancoc.foca;
 
+import com.github.ffrancoc.foca.db.Conexion;
 import com.github.ffrancoc.foca.dialog.DialogManager;
 import com.github.ffrancoc.foca.lib.*;
 import com.github.ffrancoc.foca.model.ConnectionObject;

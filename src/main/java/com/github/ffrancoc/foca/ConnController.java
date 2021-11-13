@@ -1,6 +1,6 @@
 package com.github.ffrancoc.foca;
 
-import com.github.ffrancoc.foca.lib.Conexion;
+import com.github.ffrancoc.foca.db.Conexion;
 import com.github.ffrancoc.foca.model.ConnectionObject;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
