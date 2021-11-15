@@ -18,4 +18,6 @@ module com.github.ffrancoc.foca {
     exports com.github.ffrancoc.foca;
     exports com.github.ffrancoc.foca.model;
     exports com.github.ffrancoc.foca.lib;
+    exports com.github.ffrancoc.foca.editor;
+    opens com.github.ffrancoc.foca.editor;
 }

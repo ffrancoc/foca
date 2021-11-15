@@ -56,7 +56,6 @@ public class Conexion {
             ResultSetMetaData rsMD = rs.getMetaData();
             int columnCount = rsMD.getColumnCount();
 
-
             for( int x = 1; x < (columnCount + 1); x++) {
                 String columnLabel = rsMD.getColumnLabel(x);
 
@@ -66,13 +65,18 @@ public class Conexion {
                     columns.add(columnLabel+"\n("+rsMD.getColumnTypeName(x)+")");
                 }
             }
+            columns.add(0, "#");
 
+
+            int rowCount = 1;
             while (rs.next()) {
                 ArrayList<String> row = new ArrayList<>();
+                row.add(String.valueOf(rowCount));
                 for (int x = 1; x < (columnCount + 1); x++) {
                     row.add(rs.getString(x));
                 }
                 rows.add(row);
+                rowCount++;
             }
 
             queryData.setTableName(rsMD.getTableName(1));

@@ -2,6 +2,7 @@ package com.github.ffrancoc.foca;
 
 import com.github.ffrancoc.foca.db.Conexion;
 import com.github.ffrancoc.foca.dialog.DialogManager;
+import com.github.ffrancoc.foca.editor.SourceCode;
 import com.github.ffrancoc.foca.lib.*;
 import com.github.ffrancoc.foca.model.ConnectionObject;
 import com.github.ffrancoc.foca.task.AsyncColumnInfo;
@@ -13,6 +14,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -20,12 +22,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import org.fxmisc.richtext.CodeArea;
-import org.fxmisc.richtext.LineNumberFactory;
 import org.kordamp.ikonli.javafx.FontIcon;
 
 import java.net.URL;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -68,6 +69,9 @@ public class MainController implements Initializable {
     private ListView lvEntity;
 
     @FXML
+    private AnchorPane apLeftContainer;
+
+    @FXML
     private VBox vbSidebarColumnContainer;
 
     @FXML
@@ -86,7 +90,7 @@ public class MainController implements Initializable {
     private Label sbLblConnInfo;
 
     @FXML
-    private CodeArea singleQueryEditor;
+    private TabPane tpSqlEditor;
 
     @FXML
     private TabPane tpResult;
@@ -130,12 +134,15 @@ public class MainController implements Initializable {
             hideNode(btnCloseConn, true);
             hideNode(btnOpenConn, false);
 
-            singleQueryEditor.clear();
+            tpSqlEditor.getTabs().clear();
 
             tvGlobalMsgList.getItems().clear();
             Tab tmpTab = tabMessage;
             tpResult.getTabs().clear();
             tpResult.getTabs().add(tmpTab);
+
+            apLeftContainer.setDisable(true);
+
         }
     }
 
@@ -264,18 +271,30 @@ public class MainController implements Initializable {
 
     @FXML
     private void onActionRunSelectedCode(ActionEvent event) {
-        String selectedSql = singleQueryEditor.getSelectedText();
-        if (!selectedSql.isEmpty()) {
-            SQLRunner sqlRunner = new SQLRunner(connObj.getConn(), selectedSql, tpResult, sbLblResultInfo, tvGlobalMsgList);
-        }
+        onRunSelectedCode();
     }
 
     @FXML
     private void onActionRunAllCode(ActionEvent event) {
-        String allSql = singleQueryEditor.getText();
-        if (!allSql.isEmpty()) {
-            SQLRunner sqlRunner = new SQLRunner(connObj.getConn(), allSql, tpResult, sbLblResultInfo, tvGlobalMsgList);
+        onRunAllCode();
+    }
+
+    @FXML
+    private void onActionAddTabEditor(ActionEvent event) {
+        initDefaultEditor();
+    }
+
+    @FXML
+    private void onActionCloseSelectedTabEditor(ActionEvent event) {
+        int index = tpSqlEditor.getSelectionModel().getSelectedIndex();
+        if (index >= 0) {
+            tpSqlEditor.getTabs().remove(index);
         }
+    }
+
+    @FXML
+    private void onActionCloseAllTabEditor(ActionEvent event) {
+        tpSqlEditor.getTabs().clear();
     }
 
 
@@ -319,15 +338,16 @@ public class MainController implements Initializable {
         hideNode(vbSidebarColumnContainer, true);
         btnSidebarLoadDB.setDisable(true);
 
-        singleQueryEditor.setParagraphGraphicFactory(LineNumberFactory.get(singleQueryEditor));
-        CodeSyntax codeSyntax = new CodeSyntax(singleQueryEditor);
-
+        apLeftContainer.setDisable(true);
+        tpSqlEditor.getSelectionModel().selectedItemProperty().addListener((observableValue, oldTab, newTab) -> {
+            if (tpSqlEditor.getTabs().size() == 0) {
+                initDefaultEditor();
+            }
+        });
+        initDefaultEditor();
 
         tvGlobalColumnMsg.setCellValueFactory(new PropertyValueFactory<>("message"));
         tvGlobalColumnTime.setCellValueFactory(new PropertyValueFactory<>("time"));
-
-
-
 
         // Agregar imagen default para listview vacio
         Hyperlink lvEntityHolder = new Hyperlink("No data");
@@ -368,7 +388,7 @@ public class MainController implements Initializable {
         tvGlobalMsgList.setPlaceholder(lvGlobalMsgListHolder);
 
         // Agregar imagen al tab que contiene el listview de mensajes
-        tabMessage.setGraphic(IconHelper.icon("bi-info-circle-fill", Color.DODGERBLUE));
+        tabMessage.setGraphic(IconHelper.icon("bi-info-circle-fill", Color.DODGERBLUE, 16));
 
         // Evento para actualizar informacion de columnas y filas de las consultas cuando se cambia de tab
         tpResult.getSelectionModel().selectedItemProperty().addListener((observableValue, oldTab, newTab) -> {
@@ -382,7 +402,8 @@ public class MainController implements Initializable {
                     btnCleanGlobalMsg.setDisable(true);
                 } else {
                     btnCleanGlobalMsg.setDisable(false);
-                    resultInfo.setText("");
+                    resultInfo.setText("Messages: "+tvGlobalMsgList.getItems().size());
+                    tabMessage.setGraphic(IconHelper.icon("bi-info-circle-fill", Color.DODGERBLUE, 16));
                 }
             }
         });
@@ -411,7 +432,7 @@ public class MainController implements Initializable {
 
         //ArrayList<GlobalMessageItem> globalMsg = new ArrayList<>();
         //globalMsg.add(new GlobalMessageItem(message, new Timestamp(new Date().getTime()).toString()));
-        tvGlobalMsgList.getItems().add(0, new GlobalMessageItem(message, new Timestamp(new Date().getTime()).toString()));
+        tvGlobalMsgList.getItems().add(0, new GlobalMessageItem("(Sidebar) "+message, new Timestamp(new Date().getTime()).toString()));
 
         //lvGlobalMsgList.getItems().add(0, globalMsgItem);
     }
@@ -442,7 +463,61 @@ public class MainController implements Initializable {
 
             sbLblConnInfo.setText(connObj.getUrl());
             loadData();
+            apLeftContainer.setDisable(false);
         }
+    }
+
+    private void onRunSelectedCode() {
+        int index = tpSqlEditor.getSelectionModel().getSelectedIndex();
+        if (index >= 0) {
+            Tab tab = tpSqlEditor.getTabs().get(index);
+            SourceCode code = (SourceCode) tab.getContent();
+            int cursorPosition = code.getCaretPosition();
+            String cursorText = code.getText(0, cursorPosition);
+
+            if (code.getSelectedText().isEmpty()) {
+                SQLRunner sqlRunner = new SQLRunner(connObj.getConn(), tab.getText(), cursorText, tpResult, sbLblResultInfo, tvGlobalMsgList);
+            }else {
+                SQLRunner sqlRunner = new SQLRunner(connObj.getConn(), tab.getText(), code.getSelectedText(), tpResult, sbLblResultInfo, tvGlobalMsgList);
+            }
+        }
+    }
+
+    private void onRunAllCode() {
+        int index = tpSqlEditor.getSelectionModel().getSelectedIndex();
+        if (index >= 0) {
+            Tab tab = tpSqlEditor.getTabs().get(index);
+            SourceCode code = (SourceCode) tab.getContent();
+
+            String allSql = code.getText();
+            if (!allSql.isEmpty()) {
+                SQLRunner sqlRunner = new SQLRunner(connObj.getConn(), tab.getText(), allSql, tpResult, sbLblResultInfo, tvGlobalMsgList);
+            }
+        }
+    }
+
+    private void initDefaultEditor() {
+        Tab tabEditor = new Tab("Editor #"+tpSqlEditor.getTabs().size());
+        tabEditor.setGraphic(IconHelper.icon("bi-code", Color.DODGERBLUE, 20));
+        SourceCode code = new SourceCode();
+        code.setOnKeyPressed(event -> {
+            if (event.isControlDown() && event.getCode().equals(KeyCode.ENTER)){
+                onRunSelectedCode();
+            }else if (event.isControlDown() && event.isAltDown() && event.getCode().equals(KeyCode.ENTER)) {
+                onRunAllCode();
+            }
+        });
+        tabEditor.setContent(code);
+        tpSqlEditor.getTabs().add(tabEditor);
+        tpSqlEditor.getSelectionModel().select(tabEditor);
+
+        ArrayList<String> tableNames = new ArrayList<>();
+        lvEntity.getItems().forEach(object -> {
+            EntityObject sidebarObj = (EntityObject) object;
+            tableNames.add(sidebarObj.getName());
+        });
+        code.loadTableNames(tableNames.toArray(new String[0]));
+
     }
 
     // Funcion para cargar la informacion de las tablas
@@ -479,8 +554,12 @@ public class MainController implements Initializable {
              */
 
             // Agregando menu contextual a cada item de la lista
+            ArrayList<String> tableNames = new ArrayList<>();
             lvEntity.getItems().forEach(object -> {
                 EntityObject sidebarObj = (EntityObject) object;
+
+                tableNames.add(sidebarObj.getName());
+
                 ContextMenu contextMenu = new ContextMenu();
                 MenuItem showHundredRow = new MenuItem("Show Top 100 rows");
                 showHundredRow.setOnAction(action -> {
@@ -491,7 +570,7 @@ public class MainController implements Initializable {
                     //Tab tab = TabManager.addTabResult(tpResult, sidebarObj.getName(), IconHelper.icon("bi-table", Color.DODGERBLUE));
 
                     // Cargar los datos de la consulta de manera asyncrona en la nueva tab creada
-                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery,tpResult, sbLblResultInfo, tvGlobalMsgList);
+                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), "Sidebar", sqlQuery,tpResult, sbLblResultInfo, tvGlobalMsgList);
 
                     /*
                     asyncSqlManager.setOnRunning(running -> {
@@ -502,7 +581,7 @@ public class MainController implements Initializable {
                         */
                     asyncSqlManager.setOnSucceeded(succeded2 -> {
                         // permitir que la tab pueda ser cerraaa y agregar mensaje de la consulta realizada a la tab mensajes
-                        appendGlobalMessage("SELECT 100 ROWS FROM `" +sidebarObj.getName()+"`", IconHelper.icon("bi-code-square", Color.DODGERBLUE));
+                       // appendGlobalMessage("SELECT 100 ROWS FROM `" +sidebarObj.getName()+"`", IconHelper.icon("bi-code-square", Color.DODGERBLUE));
 
                     });
 
@@ -519,7 +598,7 @@ public class MainController implements Initializable {
 
                     //Tab tab = TabManager.addTabResult(tpResult, sidebarObj.getName(), IconHelper.icon("bi-table", Color.DODGERBLUE));
 
-                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tpResult, sbLblResultInfo, tvGlobalMsgList);
+                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), "Sidebar", sqlQuery, tpResult, sbLblResultInfo, tvGlobalMsgList);
 
                     /*
                     asyncSqlManager.setOnRunning(running -> {
@@ -527,7 +606,7 @@ public class MainController implements Initializable {
                     });*/
 
                     asyncSqlManager.setOnSucceeded(succeded2 -> {
-                        appendGlobalMessage("SELECT ALL ROWS FROM `" +sidebarObj.getName()+"`", IconHelper.icon("bi-code-square", Color.DODGERBLUE));
+                       // appendGlobalMessage("SELECT ALL ROWS FROM `" +sidebarObj.getName()+"`", IconHelper.icon("bi-code-square", Color.DODGERBLUE));
 
                     });
 
@@ -543,6 +622,16 @@ public class MainController implements Initializable {
                 contextMenu.getItems().addAll(showHundredRow, showAlldRow);
                 sidebarObj.getTitle().setContextMenu(contextMenu);
             });
+
+
+            // Actualizar informacion de los editores
+            tpSqlEditor.getTabs().forEach(object -> {
+                SourceCode code = (SourceCode) object.getContent();
+                code.loadTableNames(tableNames.toArray(new String[0]));
+
+
+            });
+
 
             appendGlobalMessage("Database load succesfully", IconHelper.icon("bi-info-circle", Color.DODGERBLUE));
         });

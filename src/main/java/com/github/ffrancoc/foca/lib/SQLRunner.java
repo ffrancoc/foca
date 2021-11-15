@@ -15,13 +15,15 @@ import java.util.regex.Pattern;
 public class SQLRunner {
     private String[] querys;
     private Connection conn;
+    private String editorName;
     private String sqlQuery;
     private TabPane tpResult;
     private Label resultInfo;
     private TableView tvGlobalMsgList;
 
-    public SQLRunner(Connection conn, String sqlQuery, TabPane tbResult, Label resultInfo, TableView tvGlobalMsgList) {
+    public SQLRunner(Connection conn, String editorName, String sqlQuery, TabPane tbResult, Label resultInfo, TableView tvGlobalMsgList) {
         this.conn = conn;
+        this.editorName = editorName;
         this.sqlQuery = sqlQuery;
         this.tpResult = tbResult;
         this.resultInfo = resultInfo;
@@ -32,7 +34,7 @@ public class SQLRunner {
     private void init() {
         querys = sqlQuery.split("(?<=;)\\s*");
         for(int x = 0; x < querys.length; x++) {
-            AsyncSqlManager asyncSqlManager = new AsyncSqlManager(conn, querys[x], tpResult, resultInfo, tvGlobalMsgList);
+            AsyncSqlManager asyncSqlManager = new AsyncSqlManager(conn, editorName, querys[x].replaceAll("(?m)^[ \t]*\r?\n", ""), tpResult, resultInfo, tvGlobalMsgList);
 
             ExecutorService service = Executors.newFixedThreadPool(1);
             service.execute(asyncSqlManager);

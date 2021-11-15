@@ -1,4 +1,4 @@
-package com.github.ffrancoc.foca.lib;
+package com.github.ffrancoc.foca.editor;
 
 import com.github.ffrancoc.foca.MainApplication;
 import javafx.application.Platform;
@@ -19,10 +19,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CodeSyntax {
+    private Pattern PATTERN;
     private CodeArea codeArea;
 
     // Palabras reservadas de MariaDB
-    private static final String[] KEYWORDS = new String[] {
+    private final String[] KEYWORDS = new String[] {
             "accesible", "add", "all", "alter", "analyze", "and", "as", "asc",
             "asensitive", "before", "between", "bigint", "binary", "blob", "both",
             "by", "call", "cascade", "case", "change", "char", "character", "check", "collate",
@@ -49,34 +50,58 @@ public class CodeSyntax {
             "write", "xor", "year_month", "zerofill"
     };
 
-    // Creacion de los patrones de sintaxis
-    private static final String KEYWORD_PATTERN = "\\b(" + String.join("|", KEYWORDS) + ")\\b";
-    private static final String PAREN_PATTERN = "\\(|\\)";
-    //private static final String BRACE_PATTERN = "\\{|\\}";
-    private static final String BRACKET_PATTERN = "\\[|\\]";
-    private static final String SEMICOLON_PATTERN = "\\;";
-    private static final String STRONG_ACCENT_PATTERN = "\\`([^`\\\\\\\\]|\\\\\\\\.)*\\`";
-    private static final String STRING_SINGLE_QUOTE_PATTERN = "\'([^'\\\\]|\\\\.)*\'";
-    private static final String STRING_DOUBLE_QUOTE_PATTERN = "\"([^\"\\\\]|\\\\.)*\"";
-    private static final String COMMENT_PATTERN = "#[^\n]*" + "|" + "--[^\n]*" + "|" + "/\\*[^\\v]*" + "|" + "^\\h*\\*([^\\v]*|/)" + "|"
-            + "/\\*(.|\\R)*?\\*/";
+    private String[] TABLENAMES = new String[] {};
+    private String[] COLUMN_NAMES = new String[] {};
 
-    // Compilando los patrones de sintaxis
-    private static final Pattern PATTERN = Pattern.compile(
-            "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
-                    + "|(?<PAREN>" + PAREN_PATTERN + ")"
-                    + "|(?<BRACKET>" + BRACKET_PATTERN + ")"
-                    + "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")"
-                    + "|(?<STRONGACCENT>" + STRONG_ACCENT_PATTERN + ")"
-                    + "|(?<STRINGSINGLEQUOTE>" + STRING_SINGLE_QUOTE_PATTERN + ")"
-                    + "|(?<STRINGDOUBLEQUOTE>" + STRING_DOUBLE_QUOTE_PATTERN + ")"
-                    + "|(?<COMMENT>" + COMMENT_PATTERN + ")",
-                    Pattern.CASE_INSENSITIVE
-    );
+    public void setTABLENAMES(String[] TABLENAMES) {
+        this.TABLENAMES = TABLENAMES;
+        init();
+    }
+
+    public void setCOLUMN_NAMES(String[] COLUMN_NAMES) {
+        this.COLUMN_NAMES = COLUMN_NAMES;
+        init();
+    }
 
     // Constructor incial de la clase
     public CodeSyntax(CodeArea codeArea) {
         this.codeArea = codeArea;
+        init();
+    }
+
+    private void init() {
+        // Creacion de los patrones de sintaxis
+        String KEYWORD_PATTERN = "(?i)\\b(" + String.join("|", KEYWORDS) + ")\\b";
+        String TABLENAME_PATTERN = "\\b(" + String.join("|", TABLENAMES) + ")\\b" + "|" + "\\`(" + String.join("|", TABLENAMES) + ")\\`";
+        String COLUMN_NAME_PATTERN = "\\b(" + String.join("|", COLUMN_NAMES) + ")\\b";
+        String PAREN_PATTERN = "\\(|\\)";
+        //private static final String BRACE_PATTERN = "\\{|\\}";
+        String BRACKET_PATTERN = "\\[|\\]";
+        String SEMICOLON_PATTERN = "\\;";
+        String STRONG_ACCENT_PATTERN = "\\`([^`\\\\\\\\]|\\\\\\\\.)*\\`";
+        String STRING_SINGLE_QUOTE_PATTERN = "\'([^'\\\\]|\\\\.)*\'";
+        String STRING_DOUBLE_QUOTE_PATTERN = "\"([^\"\\\\]|\\\\.)*\"";
+        String NUMBER_PATTERN = "-?[1-9]\\d*|0";
+        String COMMENT_PATTERN = "#[^\n]*" + "|" + "--[^\n]*" + "|" + "/\\*[^\\v]*" + "|" + "^\\h*\\*([^\\v]*|/)" + "|"
+                + "/\\*(.|\\R)*?\\*/";
+
+
+        // Compilando los patrones de sintaxis
+        PATTERN = Pattern.compile(
+                "(?<KEYWORD>" + KEYWORD_PATTERN + ")"
+                        + "|(?<TABLENAME>" + TABLENAME_PATTERN + ")"
+                        + "|(?<COLUMNNAME>" + COLUMN_NAME_PATTERN + ")"
+                        + "|(?<PAREN>" + PAREN_PATTERN + ")"
+                        + "|(?<BRACKET>" + BRACKET_PATTERN + ")"
+                        + "|(?<SEMICOLON>" + SEMICOLON_PATTERN + ")"
+                        + "|(?<STRONGACCENT>" + STRONG_ACCENT_PATTERN + ")"
+                        + "|(?<STRINGSINGLEQUOTE>" + STRING_SINGLE_QUOTE_PATTERN + ")"
+                        + "|(?<STRINGDOUBLEQUOTE>" + STRING_DOUBLE_QUOTE_PATTERN + ")"
+                        + "|(?<NUMBER>" + NUMBER_PATTERN + ")"
+                        + "|(?<COMMENT>" + COMMENT_PATTERN + ")"
+                //Pattern.CASE_INSENSITIVE
+        );
+
         codeArea.getVisibleParagraphs().addModificationObserver
                 (
                         new VisibleParagraphStyler<>( codeArea, this::computeHighlighting )
@@ -89,7 +114,7 @@ public class CodeSyntax {
             if ( KE.getCode() == KeyCode.ENTER ) {
                 int caretPosition = codeArea.getCaretPosition();
                 int currentParagraph = codeArea.getCurrentParagraph();
-                Matcher m0 = whiteSpace.matcher( codeArea.getParagraph( currentParagraph-1 ).getSegments().get( 0 ) );
+                Matcher m0 = whiteSpace.matcher( codeArea.getParagraph( currentParagraph).getSegments().get( 0 ) );
                 if ( m0.find() ) Platform.runLater( () -> codeArea.insertText( caretPosition, m0.group() ) );
             }
         });
@@ -108,15 +133,18 @@ public class CodeSyntax {
         while(matcher.find()) {
             String styleClass =
                     matcher.group("KEYWORD") != null ? "keyword" :
-                            matcher.group("PAREN") != null ? "paren" :
+                            matcher.group("TABLENAME") != null ? "tablename" :
+                                    matcher.group("COLUMNNAME") != null ? "columnname" :
+                                        matcher.group("PAREN") != null ? "paren" :
                                     //matcher.group("BRACE") != null ? "brace" :
                                             matcher.group("BRACKET") != null ? "bracket" :
                                                     matcher.group("SEMICOLON") != null ? "semicolon" :
                                                             matcher.group("STRONGACCENT") != null ? "strongaccent" :
                                                                 matcher.group("STRINGSINGLEQUOTE") != null ? "string-single-quote" :
-                                                                    matcher.group("STRINGDOUBLEQUOTE") != null ? "string-double-qoute" :
-                                                                        matcher.group("COMMENT") != null ? "comment" :
-                                                                            null; assert styleClass != null;
+                                                                    matcher.group("STRINGDOUBLEQUOTE") != null ? "string-double-quote" :
+                                                                            matcher.group("NUMBER") != null ? "number" :
+                                                                                matcher.group("COMMENT") != null ? "comment" :
+                                                                                    null; assert styleClass != null;
             spansBuilder.add(Collections.emptyList(), matcher.start() - lastKwEnd);
             spansBuilder.add(Collections.singleton(styleClass), matcher.end() - matcher.start());
             lastKwEnd = matcher.end();

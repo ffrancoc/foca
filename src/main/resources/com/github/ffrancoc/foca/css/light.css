@@ -19,6 +19,11 @@
     -fx-background-color: transparent;
 }
 
+.table-view .column-header-background .label{
+    -fx-font-weight: normal;
+    -fx-font-size:13px;
+}
+
 
 .flat-button {
     -fx-background-color: transparent;

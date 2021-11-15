@@ -2,6 +2,18 @@
     -fx-fill: rgb(60, 122, 216);
     -fx-font-weight: bold;
 }
+
+.tablename {
+    -fx-fill: #000;
+    -fx-font-style: italic;
+    -fx-font-weight: bolder;
+}
+
+.columnname {
+    -fx-fill: #000;
+    -fx-font-style: italic;
+}
+
 .semicolon {
     -fx-font-weight: bold;
 }
@@ -23,10 +35,13 @@
     -fx-fill: #f6888c;
 }
 
-.string-double-qoute {
+.string-double-quote {
     -fx-fill: #ff575d;
 }
 
+.number {
+    -fx-fill: #d94fff;
+}
 
 .comment {
 	-fx-fill: rgb(150, 146, 146);
@@ -34,4 +49,8 @@
 
 .paragraph-box:has-caret {
     -fx-background-color: #f2f9fc;
+}
+
+.styled-text-area .selection {
+    -fx-fill: pink;
 }
