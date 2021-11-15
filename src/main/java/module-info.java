@@ -14,6 +14,8 @@ module com.github.ffrancoc.foca {
 
     opens com.github.ffrancoc.foca to javafx.fxml;
     opens com.github.ffrancoc.foca.model;
+    opens com.github.ffrancoc.foca.lib;
     exports com.github.ffrancoc.foca;
     exports com.github.ffrancoc.foca.model;
+    exports com.github.ffrancoc.foca.lib;
 }

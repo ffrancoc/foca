@@ -7,11 +7,13 @@ import com.github.ffrancoc.foca.model.ConnectionObject;
 import com.github.ffrancoc.foca.task.AsyncColumnInfo;
 import com.github.ffrancoc.foca.task.AsyncSidebar;
 import com.github.ffrancoc.foca.task.AsyncSqlManager;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -25,6 +27,9 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.reactfx.Subscription;
 
 import java.net.URL;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -93,7 +98,16 @@ public class MainController implements Initializable {
     private Tab tabMessage;
 
     @FXML
-    private ListView lvGlobalMsgList;
+    private TableView<GlobalMessageItem> tvGlobalMsgList;
+
+    @FXML
+    private TableColumn<GlobalMessageItem, String> tvGlobalColumnMsg;
+
+    @FXML
+    private TableColumn<GlobalMessageItem, String> tvGlobalColumnTime;
+
+    @FXML
+    private Button btnCleanGlobalMsg;
 
     // Estatus bar items
     @FXML
@@ -121,7 +135,7 @@ public class MainController implements Initializable {
 
             singleQueryEditor.clear();
 
-            lvGlobalMsgList.getItems().clear();
+            tvGlobalMsgList.getItems().clear();
             Tab tmpTab = tabMessage;
             tpResult.getTabs().clear();
             tpResult.getTabs().add(tmpTab);
@@ -255,7 +269,7 @@ public class MainController implements Initializable {
     private void onActionRunSelectedCode(ActionEvent event) {
         String selectedSql = singleQueryEditor.getSelectedText();
         if (!selectedSql.isEmpty()) {
-            SQLRunner sqlRunner = new SQLRunner(connObj.getConn(), selectedSql, tpResult, sbLblResultInfo, lvGlobalMsgList);
+            SQLRunner sqlRunner = new SQLRunner(connObj.getConn(), selectedSql, tpResult, sbLblResultInfo, tvGlobalMsgList);
         }
     }
 
@@ -263,7 +277,7 @@ public class MainController implements Initializable {
     private void onActionRunAllCode(ActionEvent event) {
         String allSql = singleQueryEditor.getText();
         if (!allSql.isEmpty()) {
-            SQLRunner sqlRunner = new SQLRunner(connObj.getConn(), allSql, tpResult, sbLblResultInfo, lvGlobalMsgList);
+            SQLRunner sqlRunner = new SQLRunner(connObj.getConn(), allSql, tpResult, sbLblResultInfo, tvGlobalMsgList);
         }
     }
 
@@ -294,6 +308,12 @@ public class MainController implements Initializable {
         tpResult.getTabs().add(tmpTab);
     }
 
+    @FXML
+    private void onActionCleanGlobalMessage(ActionEvent event) {
+        tvGlobalMsgList.getItems().clear();
+    }
+
+
     // Funcion principal del stage
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -305,6 +325,8 @@ public class MainController implements Initializable {
         singleQueryEditor.setParagraphGraphicFactory(LineNumberFactory.get(singleQueryEditor));
 
 
+        tvGlobalColumnMsg.setCellValueFactory(new PropertyValueFactory<>("message"));
+        tvGlobalColumnTime.setCellValueFactory(new PropertyValueFactory<>("time"));
 
 
 
@@ -345,7 +367,7 @@ public class MainController implements Initializable {
         Label lvGlobalMsgListHolder = new Label("No Messages");
         lvGlobalMsgListHolder.setGraphic(IconHelper.iconHolder("bi-info-circle", Color.LIGHTGRAY, 50));
         lvGlobalMsgListHolder.setContentDisplay(ContentDisplay.TOP);
-        lvGlobalMsgList.setPlaceholder(lvGlobalMsgListHolder);
+        tvGlobalMsgList.setPlaceholder(lvGlobalMsgListHolder);
 
         // Agregar imagen al tab que contiene el listview de mensajes
         tabMessage.setGraphic(IconHelper.icon("bi-info-circle-fill", Color.DODGERBLUE));
@@ -359,7 +381,9 @@ public class MainController implements Initializable {
                     if (tv != null) {
                         resultInfo.setText("col: " + tv.getColumns().size() + " | row: " + tv.getItems().size());
                     }
+                    btnCleanGlobalMsg.setDisable(true);
                 } else {
+                    btnCleanGlobalMsg.setDisable(false);
                     resultInfo.setText("");
                 }
             }
@@ -384,8 +408,14 @@ public class MainController implements Initializable {
 
     // Funcion para agregar un mensage al listview de mensajes
     private void appendGlobalMessage(String message, FontIcon iconMessage) {
-        GlobalMessageItem globalMsgItem = new GlobalMessageItem(message, iconMessage);
-        lvGlobalMsgList.getItems().add(0, globalMsgItem);
+
+        //GlobalMessageItem globalMsgItem = new GlobalMessageItem(message, iconMessage);
+
+        //ArrayList<GlobalMessageItem> globalMsg = new ArrayList<>();
+        //globalMsg.add(new GlobalMessageItem(message, new Timestamp(new Date().getTime()).toString()));
+        tvGlobalMsgList.getItems().add(0, new GlobalMessageItem(message, new Timestamp(new Date().getTime()).toString()));
+
+        //lvGlobalMsgList.getItems().add(0, globalMsgItem);
     }
 
     // Funcion para crear animacion de carga
@@ -463,7 +493,7 @@ public class MainController implements Initializable {
                     //Tab tab = TabManager.addTabResult(tpResult, sidebarObj.getName(), IconHelper.icon("bi-table", Color.DODGERBLUE));
 
                     // Cargar los datos de la consulta de manera asyncrona en la nueva tab creada
-                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery,tpResult, sbLblResultInfo, lvGlobalMsgList);
+                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery,tpResult, sbLblResultInfo, tvGlobalMsgList);
 
                     /*
                     asyncSqlManager.setOnRunning(running -> {
@@ -491,7 +521,7 @@ public class MainController implements Initializable {
 
                     //Tab tab = TabManager.addTabResult(tpResult, sidebarObj.getName(), IconHelper.icon("bi-table", Color.DODGERBLUE));
 
-                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tpResult, sbLblResultInfo, lvGlobalMsgList);
+                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tpResult, sbLblResultInfo, tvGlobalMsgList);
 
                     /*
                     asyncSqlManager.setOnRunning(running -> {

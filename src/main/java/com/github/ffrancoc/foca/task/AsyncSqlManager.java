@@ -13,21 +13,23 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.paint.Color;
 
 import java.sql.Connection;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class AsyncSqlManager extends Task<Void> {
     private Connection conn;
     private String sqlQuery;
     private TabPane tpResult;
     private Label resultInfo;
-    private ListView lvGlobalMsgList;
+    private TableView tvGlobalMsgList;
 
-    public AsyncSqlManager(Connection conn, String sqlQuery, TabPane tbResult, Label resultInfo, ListView lvGlobalMsgList) {
+    public AsyncSqlManager(Connection conn, String sqlQuery, TabPane tbResult, Label resultInfo, TableView tvGlobalMsgList) {
         this.conn = conn;
         this.sqlQuery = sqlQuery;
         this.tpResult = tbResult;
         this.resultInfo = resultInfo;
-        this.lvGlobalMsgList = lvGlobalMsgList;
+        this.tvGlobalMsgList = tvGlobalMsgList;
     }
 
 
@@ -38,7 +40,8 @@ public class AsyncSqlManager extends Task<Void> {
         if (queryData.getMessage().isEmpty()) {
             initTable(queryData.getColumns(), queryData.getRows(), queryData.getTableName());
         }else {
-            updateMessage(lvGlobalMsgList, queryData.getMessage());
+            tpResult.getSelectionModel().select(0);
+            updateMessage(tvGlobalMsgList, queryData.getMessage());
         }
 
 
@@ -46,10 +49,11 @@ public class AsyncSqlManager extends Task<Void> {
     }
 
     // Actualizar informacion de la tabla
-    private void updateMessage(ListView  lvGlobalMsgList, String msg) {
+    private void updateMessage(TableView tvGlobalMsgList, String message) {
         Platform.runLater(() -> {
-            GlobalMessageItem globalMsgItem = new GlobalMessageItem(msg, IconHelper.icon( "bi-exclamation-octagon-fill", Color.RED));
-            lvGlobalMsgList.getItems().add(0, globalMsgItem);
+            tvGlobalMsgList.getItems().add(0, new GlobalMessageItem(message, new Timestamp(new Date().getTime()).toString()));
+            //GlobalMessageItem globalMsgItem = new GlobalMessageItem(msg, IconHelper.icon( "bi-exclamation-octagon-fill", Color.RED));
+            //lvGlobalMsgList.getItems().add(0, globalMsgItem);
         });
     }
 
@@ -81,6 +85,10 @@ public class AsyncSqlManager extends Task<Void> {
         rows.forEach(row -> {
             tableView.getItems().add(row);
         });
+
+        if (rows.size() == 0) {
+            tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        }
 
         updateData(tableView, tableName);
     }

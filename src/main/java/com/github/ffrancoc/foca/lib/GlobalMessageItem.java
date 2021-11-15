@@ -1,21 +1,30 @@
 package com.github.ffrancoc.foca.lib;
 
-import javafx.scene.control.Label;
-import org.kordamp.ikonli.javafx.FontIcon;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 
-import java.sql.Timestamp;
-import java.util.Date;
+public class GlobalMessageItem{
+    private StringProperty message = new SimpleStringProperty("");
+    private StringProperty time = new SimpleStringProperty("");
 
-public class GlobalMessageItem extends Label {
+    public String getMessage() {
+        return message.get();
+    }
 
-    public GlobalMessageItem(String message, FontIcon iconMessage) {
-        super();
-        Date date = new Date();
-        Timestamp timestamp = new Timestamp(date.getTime());
-        setText(message + " "+timestamp.toString());
-        iconMessage.setIconSize(16);
-        setGraphic(iconMessage);
+    public void setMessage(String message) {
+        this.message.set(message);
+    }
 
-        getStyleClass().add("sidebar-list-item");
+    public String getTime() {
+        return time.get();
+    }
+
+    public void setTime(String time) {
+        this.time.set(time);
+    }
+
+    public GlobalMessageItem(String message, String time) {
+        setMessage(message);
+        setTime(time);
     }
 }
