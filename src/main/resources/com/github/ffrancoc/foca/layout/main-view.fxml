@@ -122,6 +122,16 @@
                                                             <FontIcon iconLiteral="bi-arrow-down-up" iconSize="16" />
                                                          </graphic>
                                                       </ToggleButton>
+                                                      <Button mnemonicParsing="false" onAction="#onActionRunSelectedCode" prefHeight="29.0" prefWidth="28.0" styleClass="flat-button">
+                                                         <graphic>
+                                                            <FontIcon iconLiteral="bi-play" iconSize="16" />
+                                                         </graphic>
+                                                      </Button>
+                                                      <Button mnemonicParsing="false" onAction="#onActionRunAllCode" prefHeight="29.0" prefWidth="28.0" styleClass="flat-button">
+                                                         <graphic>
+                                                            <FontIcon iconLiteral="bi-play-fill" iconSize="16" text="" />
+                                                         </graphic>
+                                                      </Button>
                                                    </children>
                                                 </VBox>
                                              </children>

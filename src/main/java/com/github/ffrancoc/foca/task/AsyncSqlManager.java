@@ -1,11 +1,16 @@
 package com.github.ffrancoc.foca.task;
 
 import com.github.ffrancoc.foca.db.Conexion;
+import com.github.ffrancoc.foca.lib.GlobalMessageItem;
+import com.github.ffrancoc.foca.lib.IconHelper;
+import com.github.ffrancoc.foca.lib.TabManager;
 import com.github.ffrancoc.foca.model.QueryData;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.concurrent.Task;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.paint.Color;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -13,40 +18,59 @@ import java.util.ArrayList;
 public class AsyncSqlManager extends Task<Void> {
     private Connection conn;
     private String sqlQuery;
-    private Tab tab;
+    private TabPane tpResult;
     private Label resultInfo;
+    private ListView lvGlobalMsgList;
 
-    public AsyncSqlManager(Connection conn, String sqlQuery, Tab tab, Label resultInfo) {
+    public AsyncSqlManager(Connection conn, String sqlQuery, TabPane tbResult, Label resultInfo, ListView lvGlobalMsgList) {
         this.conn = conn;
         this.sqlQuery = sqlQuery;
-        this.tab = tab;
+        this.tpResult = tbResult;
         this.resultInfo = resultInfo;
+        this.lvGlobalMsgList = lvGlobalMsgList;
     }
+
 
     // Funcion para cargar informacion de la consulta ejecutada a una tabla
     @Override
     protected Void call() throws Exception {
         QueryData queryData = Conexion.executeQuery(conn, sqlQuery);
-        initTable(queryData.getColumns(), queryData.getRows());
+        if (queryData.getMessage().isEmpty()) {
+            initTable(queryData.getColumns(), queryData.getRows(), queryData.getTableName());
+        }else {
+            updateMessage(lvGlobalMsgList, queryData.getMessage());
+        }
+
 
         return null;
     }
 
     // Actualizar informacion de la tabla
-    private void updateData(TableView tableView) {
+    private void updateMessage(ListView  lvGlobalMsgList, String msg) {
         Platform.runLater(() -> {
+            GlobalMessageItem globalMsgItem = new GlobalMessageItem(msg, IconHelper.icon( "bi-exclamation-octagon-fill", Color.RED));
+            lvGlobalMsgList.getItems().add(0, globalMsgItem);
+        });
+    }
+
+
+    private void updateData(TableView tableView, String tableName) {
+        Platform.runLater(() -> {
+            Tab tab = TabManager.addTabResult(tpResult, tableName, IconHelper.icon("bi-table", Color.DODGERBLUE));
             tab.setContent(tableView);
+            tab.setClosable(true);
             resultInfo.setText("col: " + tableView.getColumns().size() + " | row: " + tableView.getItems().size());
         });
     }
 
     // Creacion de la tabla
-    private void initTable(ArrayList<String> columns, ArrayList<ArrayList<String>> rows) {
+    private void initTable(ArrayList<String> columns, ArrayList<ArrayList<String>> rows, String tableName) {
         TableView tableView = new TableView();
-        
+
         for (int c = 0; c < columns.size(); c++) {
             TableColumn<ArrayList<String>, String> tc = new TableColumn(columns.get(c));
             tc.setReorderable(false);
+
             int finalC = c;
             tc.setCellValueFactory(data -> {
                 return new SimpleStringProperty(data.getValue().get(finalC));
@@ -58,6 +82,6 @@ public class AsyncSqlManager extends Task<Void> {
             tableView.getItems().add(row);
         });
 
-        updateData(tableView);
+        updateData(tableView, tableName);
     }
 }

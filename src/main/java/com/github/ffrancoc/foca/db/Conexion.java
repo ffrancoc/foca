@@ -43,27 +43,42 @@ public class Conexion {
     public static QueryData executeQuery(Connection conn, String sqlQuery) {
         ArrayList<String> columns = new ArrayList<>();
         ArrayList<ArrayList<String>> rows = new ArrayList<>();
+        String tableName = "";
+        String message = "";
 
-        QueryData queryData = new QueryData(columns, rows);
+        QueryData queryData = new QueryData(columns, rows, tableName, message);
 
         try {
-            Statement statement = conn.createStatement();
-            ResultSet rs = statement.executeQuery(sqlQuery);
-            ResultSetMetaData rsMD = rs.getMetaData();
+            PreparedStatement statement = conn.prepareStatement(sqlQuery);
+            ResultSet rs = statement.executeQuery();
 
-            for( int x = 1; x < rsMD.getColumnCount(); x++) {
-                columns.add(rsMD.getColumnName(x));
+
+            ResultSetMetaData rsMD = rs.getMetaData();
+            int columnCount = rsMD.getColumnCount();
+
+
+            for( int x = 1; x < (columnCount + 1); x++) {
+                String columnLabel = rsMD.getColumnLabel(x);
+
+                if (columnLabel.isEmpty()) {
+                    columns.add(rsMD.getColumnName(x)+"\n("+rsMD.getColumnTypeName(x)+")");
+                }else {
+                    columns.add(columnLabel+"\n("+rsMD.getColumnTypeName(x)+")");
+                }
             }
 
             while (rs.next()) {
                 ArrayList<String> row = new ArrayList<>();
-                for (int x = 1; x < rsMD.getColumnCount(); x++) {
+                for (int x = 1; x < (columnCount + 1); x++) {
                     row.add(rs.getString(x));
                 }
                 rows.add(row);
             }
 
+            queryData.setTableName(rsMD.getTableName(1));
+
         }catch (SQLException e) {
+            queryData.setMessage(e.getMessage());
             System.err.println("Error to load execute query from table, "+e.getMessage());
         }
         return queryData;

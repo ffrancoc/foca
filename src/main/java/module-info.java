@@ -10,6 +10,7 @@ module com.github.ffrancoc.foca {
     requires java.sql;
     requires org.mariadb.jdbc;
     requires com.google.gson;
+    requires reactfx;
 
     opens com.github.ffrancoc.foca to javafx.fxml;
     opens com.github.ffrancoc.foca.model;

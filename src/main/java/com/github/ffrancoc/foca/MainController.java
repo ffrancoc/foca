@@ -22,6 +22,7 @@ import javafx.stage.Stage;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.kordamp.ikonli.javafx.FontIcon;
+import org.reactfx.Subscription;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -93,7 +94,6 @@ public class MainController implements Initializable {
 
     @FXML
     private ListView lvGlobalMsgList;
-
 
     // Estatus bar items
     @FXML
@@ -251,6 +251,22 @@ public class MainController implements Initializable {
         }
     }
 
+    @FXML
+    private void onActionRunSelectedCode(ActionEvent event) {
+        String selectedSql = singleQueryEditor.getSelectedText();
+        if (!selectedSql.isEmpty()) {
+            SQLRunner sqlRunner = new SQLRunner(connObj.getConn(), selectedSql, tpResult, sbLblResultInfo, lvGlobalMsgList);
+        }
+    }
+
+    @FXML
+    private void onActionRunAllCode(ActionEvent event) {
+        String allSql = singleQueryEditor.getText();
+        if (!allSql.isEmpty()) {
+            SQLRunner sqlRunner = new SQLRunner(connObj.getConn(), allSql, tpResult, sbLblResultInfo, lvGlobalMsgList);
+        }
+    }
+
 
     @FXML
     private void onActionResizeTPResult(ActionEvent event) {
@@ -285,7 +301,13 @@ public class MainController implements Initializable {
         hideNode(btnCloseConn, true);
         hideNode(vbSidebarColumnContainer, true);
         btnSidebarLoadDB.setDisable(true);
+
         singleQueryEditor.setParagraphGraphicFactory(LineNumberFactory.get(singleQueryEditor));
+
+
+
+
+
 
         // Agregar imagen default para listview vacio
         Hyperlink lvEntityHolder = new Hyperlink("No data");
@@ -438,19 +460,20 @@ public class MainController implements Initializable {
                     String sqlQuery = "SELECT * FROM `" +sidebarObj.getName()+"` LIMIT 100;";
 
                     // Agregar nueva tab para mostrar los resultados de la consulta
-                    Tab tab = TabManager.addTabResult(tpResult, sidebarObj.getName(), IconHelper.icon("bi-table", Color.DODGERBLUE));
+                    //Tab tab = TabManager.addTabResult(tpResult, sidebarObj.getName(), IconHelper.icon("bi-table", Color.DODGERBLUE));
 
                     // Cargar los datos de la consulta de manera asyncrona en la nueva tab creada
-                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tab, sbLblResultInfo);
+                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery,tpResult, sbLblResultInfo, lvGlobalMsgList);
 
+                    /*
                     asyncSqlManager.setOnRunning(running -> {
                         // deshabilitar que la tab pueda ser cerrada mientras no se cargen los datos
                         tab.setClosable(false);
                     });
 
+                        */
                     asyncSqlManager.setOnSucceeded(succeded2 -> {
                         // permitir que la tab pueda ser cerraaa y agregar mensaje de la consulta realizada a la tab mensajes
-                        tab.setClosable(true);
                         appendGlobalMessage("SELECT 100 ROWS FROM `" +sidebarObj.getName()+"`", IconHelper.icon("bi-code-square", Color.DODGERBLUE));
 
                     });
@@ -466,19 +489,22 @@ public class MainController implements Initializable {
                 showAlldRow.setOnAction(action -> {
                     String sqlQuery = "SELECT * FROM `" +sidebarObj.getName()+"`;";
 
-                    Tab tab = TabManager.addTabResult(tpResult, sidebarObj.getName(), IconHelper.icon("bi-table", Color.DODGERBLUE));
+                    //Tab tab = TabManager.addTabResult(tpResult, sidebarObj.getName(), IconHelper.icon("bi-table", Color.DODGERBLUE));
 
-                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tab, sbLblResultInfo);
+                    AsyncSqlManager asyncSqlManager = new AsyncSqlManager(connObj.getConn(), sqlQuery, tpResult, sbLblResultInfo, lvGlobalMsgList);
 
+                    /*
                     asyncSqlManager.setOnRunning(running -> {
                         tab.setClosable(false);
-                    });
+                    });*/
 
                     asyncSqlManager.setOnSucceeded(succeded2 -> {
-                        tab.setClosable(true);
                         appendGlobalMessage("SELECT ALL ROWS FROM `" +sidebarObj.getName()+"`", IconHelper.icon("bi-code-square", Color.DODGERBLUE));
 
                     });
+
+
+
 
                     ExecutorService service = Executors.newFixedThreadPool(1);
                     service.execute(asyncSqlManager);
