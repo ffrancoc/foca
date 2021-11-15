@@ -7,7 +7,6 @@ import com.github.ffrancoc.foca.model.ConnectionObject;
 import com.github.ffrancoc.foca.task.AsyncColumnInfo;
 import com.github.ffrancoc.foca.task.AsyncSidebar;
 import com.github.ffrancoc.foca.task.AsyncSqlManager;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -24,11 +23,9 @@ import javafx.stage.Stage;
 import org.fxmisc.richtext.CodeArea;
 import org.fxmisc.richtext.LineNumberFactory;
 import org.kordamp.ikonli.javafx.FontIcon;
-import org.reactfx.Subscription;
 
 import java.net.URL;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
@@ -323,6 +320,7 @@ public class MainController implements Initializable {
         btnSidebarLoadDB.setDisable(true);
 
         singleQueryEditor.setParagraphGraphicFactory(LineNumberFactory.get(singleQueryEditor));
+        CodeSyntax codeSyntax = new CodeSyntax(singleQueryEditor);
 
 
         tvGlobalColumnMsg.setCellValueFactory(new PropertyValueFactory<>("message"));

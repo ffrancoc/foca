@@ -181,6 +181,7 @@
                                                             <FontIcon iconLiteral="bi-x-square-fill" iconSize="16" />
                                                          </graphic>
                                                       </Button>
+                                                      <Pane VBox.vgrow="ALWAYS" />
                                                       <Button fx:id="btnCleanGlobalMsg" mnemonicParsing="false" onAction="#onActionCleanGlobalMessage" styleClass="flat-button">
                                                          <graphic>
                                                             <FontIcon iconLiteral="bi-clock-fill" iconSize="16" />

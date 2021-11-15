@@ -40,7 +40,6 @@ public class AsyncSqlManager extends Task<Void> {
         if (queryData.getMessage().isEmpty()) {
             initTable(queryData.getColumns(), queryData.getRows(), queryData.getTableName());
         }else {
-            tpResult.getSelectionModel().select(0);
             updateMessage(tvGlobalMsgList, queryData.getMessage());
         }
 
@@ -51,6 +50,7 @@ public class AsyncSqlManager extends Task<Void> {
     // Actualizar informacion de la tabla
     private void updateMessage(TableView tvGlobalMsgList, String message) {
         Platform.runLater(() -> {
+            tpResult.getSelectionModel().select(0);
             tvGlobalMsgList.getItems().add(0, new GlobalMessageItem(message, new Timestamp(new Date().getTime()).toString()));
             //GlobalMessageItem globalMsgItem = new GlobalMessageItem(msg, IconHelper.icon( "bi-exclamation-octagon-fill", Color.RED));
             //lvGlobalMsgList.getItems().add(0, globalMsgItem);
