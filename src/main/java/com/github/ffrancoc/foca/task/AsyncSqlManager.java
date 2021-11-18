@@ -11,6 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.paint.Color;
 
 import java.sql.Connection;
@@ -71,6 +72,30 @@ public class AsyncSqlManager extends Task<Void> {
     private void updateData(TableView tableView, String tableName) {
         Platform.runLater(() -> {
             Tab tab = TabManager.addTabResult(tpResult, tableName+"("+editorName+")", IconHelper.icon("bi-table", Color.DODGERBLUE));
+
+            ContextMenu contextMenu = new ContextMenu();
+            MenuItem closeTab = new MenuItem("Close Tab");
+            closeTab.setAccelerator(KeyCombination.keyCombination("Ctrl+W"));
+            closeTab.setOnAction(event -> {
+                int index = tpResult.getSelectionModel().getSelectedIndex();
+                if (index > 0) {
+                    tpResult.getTabs().remove(tab);
+                }
+            });
+
+
+            MenuItem closeAllTab = new MenuItem("Close All Tabs");
+            closeAllTab.setAccelerator(KeyCombination.keyCombination("Shift+Ctrl+W"));
+            closeAllTab.setOnAction(event -> {
+                Tab tmpTab = tpResult.getTabs().get(0);
+                tpResult.getTabs().clear();
+                tpResult.getTabs().add(tmpTab);
+            });
+
+            contextMenu.getItems().add(closeTab);
+            contextMenu.getItems().add(closeAllTab);
+            tab.setContextMenu(contextMenu);
+
             tab.setContent(tableView);
             tab.setClosable(true);
             resultInfo.setText("col: " + tableView.getColumns().size() + " | row: " + tableView.getItems().size());

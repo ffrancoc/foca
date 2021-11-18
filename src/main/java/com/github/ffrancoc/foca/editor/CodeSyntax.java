@@ -46,7 +46,7 @@ public class CodeSyntax {
             "spatial", "specific", "sql", "sqlexception", "sqlstate", "sqlwarning", "sql_big_result", "sql_calc_found_rows", "sql_small_result",
             "ssl", "starting", "stats_auto_recalc", "stats_persistent", "stats_sample_pages", "straight_join", "table", "terminated", "then", "tinyblob",
             "tinyint", "tinytext", "to", "trailing", "trigger", "true", "undo", "union", "unique", "unlock", "unsigned", "update", "usage", "use", "using",
-            "utc_date", "utc_time", "utc_timestamp", "values", "varbinary", "varchar", "varcharacter", "varying", "when", "where", "while", "window", "with",
+            "utc_date", "utc_time", "utc_timestamp", "values", "varbinary", "varchar", "varcharacter", "varying", "when", "where", "while", "view", "window", "with",
             "write", "xor", "year_month", "zerofill"
     };
 

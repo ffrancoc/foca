@@ -15,6 +15,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -141,7 +142,7 @@ public class MainController implements Initializable {
             tpResult.getTabs().clear();
             tpResult.getTabs().add(tmpTab);
 
-            apLeftContainer.setDisable(true);
+            //apLeftContainer.setDisable(true);
 
         }
     }
@@ -285,20 +286,6 @@ public class MainController implements Initializable {
     }
 
     @FXML
-    private void onActionCloseSelectedTabEditor(ActionEvent event) {
-        int index = tpSqlEditor.getSelectionModel().getSelectedIndex();
-        if (index >= 0) {
-            tpSqlEditor.getTabs().remove(index);
-        }
-    }
-
-    @FXML
-    private void onActionCloseAllTabEditor(ActionEvent event) {
-        tpSqlEditor.getTabs().clear();
-    }
-
-
-    @FXML
     private void onActionResizeTPResult(ActionEvent event) {
         ToggleButton btnResizeTPResult = (ToggleButton) event.getSource();
 
@@ -309,20 +296,6 @@ public class MainController implements Initializable {
         }
     }
 
-    @FXML
-    private void onActionCloseSelectedTab(ActionEvent event) {
-        int index = tpResult.getSelectionModel().getSelectedIndex();
-        if (index > 0) {
-            tpResult.getTabs().remove(index);
-        }
-    }
-
-    @FXML
-    private void onActionCloseAllTab(ActionEvent event) {
-        Tab tmpTab = tabMessage;
-        tpResult.getTabs().clear();
-        tpResult.getTabs().add(tmpTab);
-    }
 
     @FXML
     private void onActionCleanGlobalMessage(ActionEvent event) {
@@ -338,7 +311,7 @@ public class MainController implements Initializable {
         hideNode(vbSidebarColumnContainer, true);
         btnSidebarLoadDB.setDisable(true);
 
-        apLeftContainer.setDisable(true);
+        //apLeftContainer.setDisable(true);
         tpSqlEditor.getSelectionModel().selectedItemProperty().addListener((observableValue, oldTab, newTab) -> {
             if (tpSqlEditor.getTabs().size() == 0) {
                 initDefaultEditor();
@@ -499,6 +472,29 @@ public class MainController implements Initializable {
     private void initDefaultEditor() {
         Tab tabEditor = new Tab("Editor #"+tpSqlEditor.getTabs().size());
         tabEditor.setGraphic(IconHelper.icon("bi-code", Color.DODGERBLUE, 20));
+
+        ContextMenu contextMenu = new ContextMenu();
+        MenuItem closeTab = new MenuItem("Close Tab");
+        //closeTab.setAccelerator(KeyCombination.keyCombination("Ctrl+W"));
+        closeTab.setOnAction(event -> {
+            int index = tpSqlEditor.getSelectionModel().getSelectedIndex();
+            if (index >= 0) {
+                tpSqlEditor.getTabs().remove(tabEditor);
+            }
+        });
+
+
+        MenuItem closeAllTab = new MenuItem("Close All Tabs");
+        //closeAllTab.setAccelerator(KeyCombination.keyCombination("Shift+Ctrl+W"));
+        closeAllTab.setOnAction(event -> {
+            tpSqlEditor.getTabs().clear();
+        });
+
+        contextMenu.getItems().add(closeTab);
+        contextMenu.getItems().add(closeAllTab);
+        tabEditor.setContextMenu(contextMenu);
+
+
         SourceCode code = new SourceCode();
         code.setOnKeyPressed(event -> {
             if (event.isControlDown() && event.getCode().equals(KeyCode.ENTER)){

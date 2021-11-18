@@ -30,7 +30,8 @@
 }
 
 .flat-button:hover {
-    -fx-background-color: #dddad6;
+     -fx-background-color: #cfcac4;
+     -fx-background-radius: 100px;
 }
 
 .conn-msg {
@@ -79,9 +80,36 @@
 }
 
 
+.toolbar {
+        -fx-background-color: #cfcac4;
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+        -fx-background-color:  #dddad6;
+}
+
+.tab-pane .tab-header-area .headers-region .tab {
+        -fx-background-color:  #dddad6;
+}
+
+.tab-pane .tab-header-area .headers-region .tab:selected {
+        -fx-background-color:  #c3e6ff;
+        -fx-border-width: 0 0 0 4;
+        -fx-border-color: #005A9C;
+
+}
+
+.tab-pane:focused > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
+     -fx-border-width: 0;
+}
+
 .sidebar,
 .sidebar-list {
-    -fx-background-color: #f2f2f2;
+    -fx-background-color: #ebebeb;
+}
+
+.sidebar-head {
+    -fx-background-color: #dddad6;
 }
 
 .sidebar-list .scroll-bar:horizontal {
